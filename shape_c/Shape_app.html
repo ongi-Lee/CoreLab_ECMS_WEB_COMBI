@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>더 좋은 세상을 위한 우리 가족 AI 제안</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+:root{
+  --paper:#FBF7F0; --ink:#1F2933; --accent:#2D6A5A; --mark:#E8A33D;
+  --grey:#9AA5B1; --line:#D9D2C5; --frame:#8FA0B8; --seal:#C0392B;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans KR",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:20px 18px 60px;position:relative}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+.steps{display:flex;gap:6px;flex:1;margin:0}
+.steps i{flex:1;height:4px;background:var(--line);border-radius:2px;transition:background .3s}
+.steps i.on{background:var(--accent)}
+
+h1{font-family:"Gowun Batang",serif;font-size:25px;font-weight:700;margin:0 0 6px;letter-spacing:-.5px;line-height:1.4}
+.sub{color:var(--grey);font-size:14px;margin:0 0 26px}
+
+.screen{display:none;animation:fade .35s ease}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--accent);color:#fff;border:none;border-radius:8px;
+  padding:14px 22px;font-family:inherit;font-size:16px;font-weight:700;
+  cursor:pointer;transition:opacity .2s;width:100%}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--accent);border:1.5px solid var(--accent)}
+.btn:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+.row{display:flex;gap:10px;margin-top:20px}
+.row .btn{width:auto;flex:1}
+
+label{display:block;font-size:14px;font-weight:700;margin:18px 0 6px}
+input[type=text],textarea{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:8px;
+  background:#fff;font-family:inherit;font-size:16px;color:var(--ink);resize:none}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+
+.caselink{display:block;border:1.5px solid var(--line);border-radius:10px;padding:18px;
+  margin-bottom:12px;text-decoration:none;color:inherit;background:#fff;transition:border-color .2s}
+.caselink:hover{border-color:var(--accent)}
+.caselink b{display:block;font-size:17px;margin-bottom:4px}
+.caselink span{font-size:13px;color:var(--grey)}
+.caselink em{font-style:normal;color:var(--accent);font-size:13px;font-weight:700}
+
+.note{background:#F2EEE4;border-left:3px solid var(--mark);padding:14px 16px;
+  font-size:14.5px;color:#5b6570;border-radius:0 6px 6px 0;margin:18px 0}
+.note b{color:var(--ink)}
+
+.check{display:flex;gap:10px;align-items:flex-start;margin:22px 0 0;font-size:15px;cursor:pointer}
+.check input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent)}
+
+.video{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;
+  background:#000;border:1.5px solid var(--line)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vfall{font-size:13px;color:var(--grey);margin-top:8px;text-align:center}
+.vfall a{color:var(--accent)}
+
+.qno{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:1px}
+.q{font-family:"Gowun Batang",serif;font-size:22px;font-weight:700;line-height:1.5;margin:6px 0 14px}
+.hint{font-size:13px;color:var(--grey);margin:8px 0 0}
+.ex{font-size:13.5px;color:#6b7580;background:#F5F1E8;border-radius:8px;padding:12px 14px;margin-top:12px}
+.ex b{color:var(--accent);display:block;margin-bottom:4px;font-size:12.5px}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.tcard{border:1.5px solid var(--line);border-radius:10px;padding:14px 12px;background:#fff;
+  cursor:pointer;text-align:center;transition:all .15s;font-size:15px;font-weight:700}
+.tcard small{display:block;font-weight:400;font-size:11.5px;color:var(--grey);margin-top:3px}
+.tcard.sel{border-color:var(--accent);background:#EAF2EE;color:var(--accent)}
+.tcard.sel small{color:var(--accent)}
+#etcwrap{margin-top:12px;display:none}
+
+.preview{background:#fff;border:1.5px solid var(--line);border-radius:12px;
+  padding:18px 20px;font-size:14px;line-height:2}
+.preview .cap{font-size:11px;color:var(--grey);letter-spacing:1px;margin-bottom:8px;
+  padding-bottom:8px;border-bottom:1px solid var(--line)}
+.blank{color:var(--grey)}
+.k{font-weight:700}
+
+.qwrap{display:block}
+.qcol{min-width:0}
+.pvcol{margin-top:22px}
+@media(min-width:760px){
+  .qwrap{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
+  .pvcol{margin-top:0;position:sticky;top:20px}
+}
+
+.card{background:#FAF8F3;padding:14px;position:relative;border:2px solid var(--frame)}
+.card:before{content:"";position:absolute;inset:8px;border:1px solid var(--frame);pointer-events:none}
+.card-in{padding:34px 24px;position:relative;background-color:#FAF8F3;}
+.card-in:after{content:"AI";position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
+  font-family:"Gowun Batang",serif;font-size:110px;color:rgba(143,160,184,.09);font-weight:700;pointer-events:none}
+.card h2{font-family:"Gowun Batang",serif;font-size:23px;font-weight:700;margin:0 0 14px;
+  letter-spacing:-1px;text-align:center;line-height:1.45}
+.card hr{border:none;border-top:1px solid var(--frame);width:55%;margin:0 auto 26px}
+.card .body{font-size:16px;line-height:2.05;position:relative;z-index:1}
+.card .date{font-size:14px;font-weight:700;margin:26px 0 18px;text-align:center}
+.signrow{display:flex;align-items:center;justify-content:center;gap:14px}
+.card .signer{font-size:17px;font-weight:700}
+.seal{width:52px;height:52px;border:2.5px solid var(--seal);color:var(--seal);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:"Gowun Batang",serif;font-weight:700;font-size:14px;line-height:1.15;letter-spacing:-1px}
+.editnote{font-size:13px;color:var(--grey);margin:14px 0 0;text-align:center}
+.editor{margin-top:24px;border-top:1px dashed var(--line);padding-top:18px}
+.editor h3{font-size:13.5px;margin:0 0 4px}
+.editor input{margin-bottom:6px}
+.done{text-align:center;padding:40px 0}
+.done .big{font-family:"Gowun Batang",serif;font-size:23px;font-weight:700;margin-bottom:10px}
+
+.home-btn-shape {
+  font-size: 14px;
+  background: white;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px 14px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  z-index: 100;
+  flex-shrink: 0;
+}
+.home-btn-shape:hover {
+  background: var(--accent);
+  color: white;
+}
+.lang-selector-sub {
+  display: inline-flex;
+  background: white;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  z-index: 100;
+}
+.lang-btn-sub {
+  background: none;
+  border: none;
+  color: var(--grey);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.lang-btn-sub:hover {
+  color: var(--accent);
+}
+.lang-btn-sub.active {
+  background: var(--accent);
+  color: white;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-nav">
+    <div class="steps" aria-hidden="true">
+      <i id="s0" class="on"></i><i id="s1"></i><i id="s2"></i><i id="s3"></i><i id="s4"></i>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <a href="../index.html" class="home-btn-shape">🏠 홈으로</a>
+      <div class="lang-selector-sub">
+        <button class="lang-btn-sub active" data-lang="ko">Korean</button>
+        <button class="lang-btn-sub" data-lang="en">English</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="screen on" id="scr0">
+    <h1 id="scr0_title">더 좋은 세상을 위한<br>우리 가족 AI 제안</h1>
+    <p class="sub" id="scr0_sub">학교에서 조사한 AI 사례를 가족과 함께 살펴보고,<br>세상을 돕는 우리 가족만의 AI를 제안해 봅시다.</p>
+    <label for="fam" id="scr0_label">학생 이름을 적어 주세요</label>
+    <input type="text" id="fam" placeholder="예: 홍길동" autocomplete="off">
+    <p class="hint" id="scr0_hint">제안서 맨 아래에 ‘○○○ 가족’으로 들어갑니다.</p>
+    <div class="row"><button class="btn" id="scr0_btn" onclick="go(1)">시작하기</button></div>
+  </section>
+
+  <section class="screen" id="scr1">
+    <h1 id="scr1_title">우리 반 조사 결과 살펴보기</h1>
+    <p class="sub" id="scr1_sub">수업 시간에 우리 반이 함께 조사한 사례입니다. 가족과 함께 살펴보세요.</p>
+    <!-- 띵커벨 링크 적용됨 -->
+    <a class="caselink" href="https://b.tkbell.co.kr/tkboard/woi/1219189/I8hk9OK7d8.do?pageSeq=2519338" target="_blank" rel="noopener" id="link-pos">
+      <b id="scr1_link_pos_b">AI가 도움을 준 사례</b><span id="scr1_link_pos_s">활동 1에서 우리 반이 조사한 내용</span><br><em id="scr1_link_pos_e">열어 보기 →</em>
+    </a>
+    <a class="caselink" href="https://b.tkbell.co.kr/tkboard/woi/1219189/qN10QJJhEF.do?pageSeq=2519398" target="_blank" rel="noopener" id="link-neg">
+      <b id="scr1_link_neg_b">AI가 문제를 일으킨 사례</b><span id="scr1_link_neg_s">활동 2에서 우리 반이 조사한 내용</span><br><em id="scr1_link_neg_e">열어 보기 →</em>
+    </a>
+    <div class="note" id="scr1_note"><b>AI 기술은 좋게도, 나쁘게도 쓰일 수 있어요.</b> 어떻게 쓰느냐는 사람에게 달려 있습니다. 우리 가족은 <b>좋은 쪽</b>을 만들어 봅시다.</div>
+    <label class="check">
+      <input type="checkbox" id="c1" onchange="document.getElementById('g1').disabled=!this.checked">
+      <span id="scr1_check">가족과 함께 살펴보았나요? 기억에 남는 것을 이야기 나누었다면 체크해 주세요.</span>
+    </label>
+    <div class="row">
+      <button class="btn ghost" id="scr1_btn_prev" onclick="go(0)">이전</button>
+      <button class="btn" id="g1" disabled onclick="go(2)">다음</button>
+    </div>
+  </section>
+
+  <section class="screen" id="scr2">
+    <h1 id="scr2_title">AI는 지금 무엇을 하고 있을까요?</h1>
+    <p class="sub" id="scr2_sub">세계 최대 전자제품 박람회(CES 2025)의 모습을 함께 봅시다.</p>
+    <div class="video">
+      <iframe id="yt" src="https://www.youtube-nocookie.com/embed/fq4A8RwHHII?si=R0NWMXxIIVVzFu3m" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <p class="vfall" id="scr2_fallback">영상이 보이지 않으면 <a href="https://youtu.be/fq4A8RwHHII" target="_blank" rel="noopener">여기를 눌러</a> 여세요.</p>
+    <div class="note" id="scr2_note">AI는 이미 우리 생활 곳곳에서 사람을 돕고 있어요. 스스로 물건을 정리하는 로봇 청소기처럼요.<br><b>우리 가족에게는 어떤 AI가 있으면 좋을까요?</b></div>
+    <label class="check">
+      <input type="checkbox" id="c2" onchange="document.getElementById('g2').disabled=!this.checked">
+      <span id="scr2_check">영상을 보고 어떤 AI가 있으면 좋을지 이야기 나누었어요.</span>
+    </label>
+    <div class="row">
+      <button class="btn ghost" id="scr2_btn_prev" onclick="go(1)">이전</button>
+      <button class="btn" id="g2" disabled onclick="go(3);showQ(0)">아이디어 대회 시작</button>
+    </div>
+  </section>
+
+  <section class="screen" id="scr3">
+   <div class="qwrap">
+    <div class="qcol">
+    <div class="qno" id="qno"></div>
+    <div class="q" id="qtext"></div>
+
+    <div id="normalBox">
+      <textarea id="ans" rows="3" placeholder="가족과 이야기한 내용을 적어 주세요"></textarea>
+      <p class="hint" id="qhint"></p>
+      <div class="ex" id="exbox"></div>
+    </div>
+
+    <div id="techBox" style="display:none">
+      <div class="cards" id="cards"></div>
+      <div id="etcwrap">
+        <label for="etc" id="scr3_etc_label">어떤 AI인가요? 직접 적어 주세요</label>
+        <input type="text" id="etc" placeholder="예: 냄새를 맡는 AI" oninput="A[3].etc=this.value;buildPv()">
+      </div>
+      <label for="use" id="scr3_use_label" style="margin-top:16px">이 AI로 무엇을 하나요?</label>
+      <textarea id="use" rows="2" placeholder="예: 냉장고에 들어온 물건을 자동으로 인식하고 목록으로 만든다" oninput="A[3].use=this.value;buildPv()"></textarea>
+      <div class="ex" id="scr3_tech_ex"><b>적는 방법</b>이미지·영상 인식 AI를 골랐다면 → “냉장고 물건을 자동으로 알아보고 목록으로 만든다”처럼 적어요.</div>
+    </div>
+
+    <div class="row">
+      <button class="btn ghost" id="scr3_btn_prev" onclick="prevQ()">이전</button>
+      <button class="btn" id="nextq" onclick="nextQ()">다음</button>
+    </div>
+    </div>
+    <div class="pvcol">
+      <div class="preview" id="pv">
+        <div class="cap" id="scr3_preview_cap">제안서 미리보기</div>
+        <p id="pvtext"></p>
+      </div>
+    </div>
+   </div>
+  </section>
+
+  <section class="screen" id="scr4">
+    <h1 id="scr4_title">모두를 위한 AI 제안서</h1>
+    <p class="sub" id="scr4_sub">가족이 함께 만든 아이디어가 제안서가 되었습니다. 어색한 곳은 아래에서 다듬을 수 있어요.</p>
+    
+    <div class="card" id="cardbox">
+      <div class="card-in">
+        <h2 id="ctitle">○○○ 가족의<br>모두를 위한 AI 제안서</h2>
+        <hr>
+        <div class="body" id="cbody"></div>
+        <p class="date" id="cdate"></p>
+        <div class="signrow">
+          <span class="signer" id="csign">제안 : ○○○ 가족</span>
+          <div class="seal" id="cseal">우리<br>가족</div>
+        </div>
+      </div>
+    </div>
+    
+    <p class="editnote" id="scr4_editnote">문장이 어색한가요? 아래에서 답을 다듬어 보세요.</p>
+    <div class="editor">
+      <h3 id="scr4_e0_title">1. 누구를 돕고 싶나요</h3><input type="text" id="e0" oninput="syncEdit()">
+      <h3 id="scr4_e1_title">2. 무엇을 도와주나요</h3><input type="text" id="e1" oninput="syncEdit()">
+      <h3 id="scr4_e2_title">3. 왜 필요한가요 (그 사람의 상황)</h3><input type="text" id="e2" oninput="syncEdit()">
+      <h3 id="scr4_e4_title">4. 어떤 AI로 / 무엇을 하나요</h3>
+      <input type="text" id="e4tech" placeholder="AI 이름 (예: 이미지·영상 인식)" oninput="syncEdit()">
+      <input type="text" id="e4use" placeholder="이 AI로 하는 일" oninput="syncEdit()">
+      <h3 id="scr4_e5_title">5. 무엇이 좋아지나요</h3><input type="text" id="e5" oninput="syncEdit()">
+    </div>
+    
+    <div class="row">
+      <button class="btn ghost" id="scr4_btn_prev" onclick="go(3);showQ(4)">아이디어로 돌아가기</button>
+      <button class="btn" id="submitBtn" onclick="submit()">선생님께 제출하기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="scr5">
+    <div class="done">
+      <div class="big" id="scr5_title">제안서를 제출했습니다</div>
+      <p class="sub" id="scr5_sub">다음 시간에 우리 반 친구들과 함께 나눕니다.<br>가족과 함께 만들어 주셔서 고맙습니다.</p>
+      <button class="btn ghost" id="scr5_btn" onclick="go(4)">제안서 다시 보기</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlycYK9v0n_btQebEvr3t8O_-r_iTbao12oIcjIfhG3AF6fI2_G675PEqAUlauVkm4Qg/exec";
+
+const TECH=[
+  {id:"추천",label:"추천 AI",desc:"좋아할 것을 골라줘요"},
+  {id:"생성형",label:"생성형 AI",desc:"글·그림을 만들어요"},
+  {id:"번역·언어",label:"번역·언어 AI",desc:"말과 글을 옮겨요"},
+  {id:"이미지·영상 인식",label:"이미지·영상 인식 AI",desc:"보고 알아봐요"},
+  {id:"음성 인식",label:"음성 인식 AI",desc:"듣고 알아들어요"},
+  {id:"자율주행·길찾기",label:"자율주행·길찾기 AI",desc:"길을 안내해요"},
+  {id:"기타",label:"기타",desc:"직접 적기"}
+];
+
+const TECH_TRANS = {
+  ko: {
+    "추천": { label: "추천 AI", desc: "좋아할 것을 골라줘요" },
+    "생성형": { label: "생성형 AI", desc: "글·그림을 만들어요" },
+    "번역·언어": { label: "번역·언어 AI", desc: "말과 글을 옮겨요" },
+    "이미지·영상 인식": { label: "이미지·영상 인식 AI", desc: "보고 알아봐요" },
+    "음성 인식": { label: "음성 인식 AI", desc: "듣고 알아들어요" },
+    "자율주행·길찾기": { label: "자율주행·길찾기 AI", desc: "길을 안내해요" },
+    "기타": { label: "기타", desc: "직접 적기" }
+  },
+  en: {
+    "추천": { label: "Recommendation AI", desc: "Picks things you like" },
+    "생성형": { label: "Generative AI", desc: "Creates text & images" },
+    "번역·언어": { label: "Translation AI", desc: "Translates speech & text" },
+    "이미지·영상 인식": { label: "Vision AI", desc: "Recognizes objects" },
+    "음성 인식": { label: "Voice AI", desc: "Understands speech" },
+    "자율주행·길찾기": { label: "Self-Driving/Navigation AI", desc: "Guides the way" },
+    "기타": { label: "Other", desc: "Write directly" }
+  }
+};
+
+const Q_TRANS = {
+  ko: [
+    {no:"질문 1",text:"누구를 돕고 싶나요?",
+     hint:"돕고 싶은 사람과, 그 사람이 어려워하는 점을 함께 적어요.",
+     ex:["냉장고 정리가 어려운 엄마","눈이 불편한 할아버지","길을 잘 잃는 동생"]},
+    {no:"질문 2",text:"그 사람의 무엇을 도와주면 좋을까요?",
+     hint:"‘~하기’처럼 도와줄 일을 적어요.",
+     ex:["냉장고 정리","길 안내","약 먹는 시간 알려주기"]},
+    {no:"질문 3",text:"왜 그 도움이 필요한가요?",
+     hint:"그 사람의 상황을 적어요. ‘왜냐하면 ~ 때문입니다’로 이어져요.",
+     ex:["엄마는 요리도 하고 일도 나가셔서 바쁘기","할아버지는 글씨가 잘 안 보이시기"]},
+    {no:"질문 4",tech:true,text:"이 AI는 어떤 AI로 도와줄까요?"},
+    {no:"질문 5",text:"그러면 무엇이 좋아지나요?",
+     hint:"‘~할 수 있습니다’로 끝나도록 적어요.",
+     ex:["음식이 상하기 전에 맛있게 먹을","혼자서도 안전하게 다닐"]}
+  ],
+  en: [
+    {no:"Question 1",text:"Who do you want to help?",
+     hint:"Write down who you want to help and what they struggle with.",
+     ex:["Mom who struggles to organize fridge","Grandfather with poor eyesight","Little brother who gets lost easily"]},
+    {no:"Question 2",text:"What should we help that person with?",
+     hint:"Write down the task to help them with, like 'organizing the fridge'.",
+     ex:["Organizing fridge","Guiding directions","Reminding to take medicine"]},
+    {no:"Question 3",text:"Why is that help needed?",
+     hint:"Describe the person's situation. It will flow as 'Because...'.",
+     ex:["Because mom is busy working and cooking","Because grandfather cannot see small letters clearly"]},
+    {no:"Question 4",tech:true,text:"What kind of AI will help them?"},
+    {no:"Question 5",text:"What will improve after that?",
+     hint:"Write what they will be able to do, ending in 'can ...'.",
+     ex:["can eat food deliciously before it spoils","can walk around safely on their own"]}
+  ]
+};
+
+const STATIC_I18N = {
+  ko: {
+    scr0_title: "더 좋은 세상을 위한\n우리 가족 AI 제안",
+    scr0_sub: "학교에서 조사한 AI 사례를 가족과 함께 살펴보고,\n세상을 돕는 우리 가족만의 AI를 제안해 봅시다.",
+    scr0_label: "학생 이름을 적어 주세요",
+    scr0_placeholder: "예: 홍길동",
+    scr0_hint: "제안서 맨 아래에 ‘○○○ 가족’으로 들어갑니다.",
+    scr0_btn: "시작하기",
+    
+    scr1_title: "우리 반 조사 결과 살펴보기",
+    scr1_sub: "수업 시간에 우리 반이 함께 조사한 사례입니다. 가족과 함께 살펴보세요.",
+    scr1_link_pos_b: "AI가 도움을 준 사례",
+    scr1_link_pos_s: "활동 1에서 우리 반이 조사한 내용",
+    scr1_link_pos_e: "열어 보기 →",
+    scr1_link_neg_b: "AI가 문제를 일으킨 사례",
+    scr1_link_neg_s: "활동 2에서 우리 반이 조사한 내용",
+    scr1_link_neg_e: "열어 보기 →",
+    scr1_note: "<b>AI 기술은 좋게도, 나쁘게도 쓰일 수 있어요.</b> 어떻게 쓰느냐는 사람에게 달려 있습니다. 우리 가족은 <b>좋은 쪽</b>을 만들어 봅시다.",
+    scr1_check: "가족과 함께 살펴보았나요? 기억에 남는 것을 이야기 나누었다면 체크해 주세요.",
+    scr1_btn_prev: "이전",
+    scr1_btn_next: "다음",
+    
+    scr2_title: "AI는 지금 무엇을 하고 있을까요?",
+    scr2_sub: "세계 최대 전자제품 박람회(CES 2025)의 모습을 함께 봅시다.",
+    scr2_fallback: "영상이 보이지 않으면 <a href='https://youtu.be/fq4A8RwHHII' target='_blank' rel='noopener'>여기를 눌러</a> 여세요.",
+    scr2_note: "AI는 이미 우리 생활 곳곳에서 사람을 돕고 있어요. 스스로 물건을 정리하는 로봇 청소기처럼요.<br><b>우리 가족에게는 어떤 AI가 있으면 좋을까요?</b>",
+    scr2_check: "영상을 보고 어떤 AI가 있으면 좋을지 이야기 나누었어요.",
+    scr2_btn_prev: "이전",
+    scr2_btn_next: "아이디어 대회 시작",
+    
+    scr3_btn_prev: "이전",
+    scr3_btn_next: "다음",
+    scr3_btn_finish: "제안서 만들기",
+    scr3_placeholder: "가족과 이야기한 내용을 적어 주세요",
+    scr3_etc_label: "어떤 AI인가요? 직접 적어 주세요",
+    scr3_etc_placeholder: "예: 냄새를 맡는 AI",
+    scr3_use_label: "이 AI로 무엇을 하나요?",
+    scr3_use_placeholder: "예: 냉장고에 들어온 물건을 자동으로 인식하고 목록으로 만든다",
+    scr3_tech_ex: "<b>적는 방법</b>이미지·영상 인식 AI를 골랐다면 → “냉장고 물건을 자동으로 알아보고 목록으로 만든다”처럼 적어요.",
+    scr3_preview_cap: "제안서 미리보기",
+    
+    scr4_title: "모두를 위한 AI 제안서",
+    scr4_sub: "가족이 함께 만든 아이디어가 제안서가 되었습니다. 어색한 곳은 아래에서 다듬을 수 있어요.",
+    scr4_editnote: "문장이 어색한가요? 아래에서 답을 다듬어 보세요.",
+    scr4_e0_title: "1. 누구를 돕고 싶나요",
+    scr4_e1_title: "2. 무엇을 도와주나요",
+    scr4_e2_title: "3. 왜 필요한가요 (그 사람의 상황)",
+    scr4_e4_title: "4. 어떤 AI로 / 무엇을 하나요",
+    scr4_e4tech_placeholder: "AI 이름 (예: 이미지·영상 인식)",
+    scr4_e4use_placeholder: "이 AI로 하는 일",
+    scr4_e5_title: "5. 무엇이 좋아지나요",
+    scr4_btn_prev: "아이디어로 돌아가기",
+    scr4_btn_submit: "선생님께 제출하기",
+    scr4_btn_submitting: "이미지 생성 및 제출 중... (약 3~5초)",
+    
+    scr5_title: "제안서를 제출했습니다",
+    scr5_sub: "다음 시간에 우리 반 친구들과 함께 나눕니다.<br>가족과 함께 만들어 주셔서 고맙습니다.",
+    scr5_btn: "제안서 다시 보기",
+    
+    submit_err: "제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+  },
+  en: {
+    scr0_title: "Our Family AI Proposal\nfor a Better World",
+    scr0_sub: "Let's review AI cases investigated in school with family,\nand propose our family's unique AI to help the world.",
+    scr0_label: "Please write the student's name",
+    scr0_placeholder: "e.g. John Doe",
+    scr0_hint: "It will display as '... Family' at the bottom of the proposal.",
+    scr0_btn: "Start",
+    
+    scr1_title: "Review Our Class Investigation",
+    scr1_sub: "These are cases investigated by our class during lesson time. Please review them with your family.",
+    scr1_link_pos_b: "Cases of AI helping people",
+    scr1_link_pos_s: "Investigated by class in Activity 1",
+    scr1_link_pos_e: "Open →",
+    scr1_link_neg_b: "Cases of AI causing problems",
+    scr1_link_neg_s: "Investigated by class in Activity 2",
+    scr1_link_neg_e: "Open →",
+    scr1_note: "<b>AI technology can be used for good or bad.</b> How it's used depends on humans. Let's make a proposal for the <b>good side</b>.",
+    scr1_check: "Have you reviewed this with your family? Check here if you discussed what you remembered.",
+    scr1_btn_prev: "Back",
+    scr1_btn_next: "Next",
+    
+    scr2_title: "What is AI Doing Now?",
+    scr2_sub: "Let's check the scenes from the world's largest tech show (CES 2025).",
+    scr2_fallback: "If the video does not load, <a href='https://youtu.be/fq4A8RwHHII' target='_blank' rel='noopener'>click here</a> to open.",
+    scr2_note: "AI is already helping people everywhere in our lives, like robotic vacuums that organize things on their own.<br><b>What kind of AI would be good for our family?</b>",
+    scr2_check: "We watched the video and discussed what kind of AI would be helpful.",
+    scr2_btn_prev: "Back",
+    scr2_btn_next: "Start Idea Contest",
+    
+    scr3_btn_prev: "Back",
+    scr3_btn_next: "Next",
+    scr3_btn_finish: "Create Proposal",
+    scr3_placeholder: "Write down the content you discussed with your family",
+    scr3_etc_label: "What kind of AI is it? Write it down directly",
+    scr3_etc_placeholder: "e.g. AI that smells things",
+    scr3_use_label: "What do you do with this AI?",
+    scr3_use_placeholder: "e.g. Automatically recognizes objects in the fridge and makes a list",
+    scr3_tech_ex: "<b>How to write</b> If you chose Vision AI → write something like 'Automatically recognizes objects in the fridge and makes a list'.",
+    scr3_preview_cap: "Proposal Preview",
+    
+    scr4_title: "AI Proposal for All",
+    scr4_sub: "The ideas created together by the family have become a proposal. You can refine any awkward parts below.",
+    scr4_editnote: "Is the sentence awkward? Refine your answers below.",
+    scr4_e0_title: "1. Who do you want to help",
+    scr4_e1_title: "2. What tasks does it help with",
+    scr4_e2_title: "3. Why is it needed (situation)",
+    scr4_e4_title: "4. What AI / what does it do",
+    scr4_e4tech_placeholder: "AI Name (e.g. Vision AI)",
+    scr4_e4use_placeholder: "What this AI does",
+    scr4_e5_title: "5. What will improve",
+    scr4_btn_prev: "Go back to ideas",
+    scr4_btn_submit: "Submit to Teacher",
+    scr4_btn_submitting: "Generating image & submitting... (about 3~5s)",
+    
+    scr5_title: "Proposal Submitted",
+    scr5_sub: "We will share this with our classmates in the next class.<br>Thank you for creating it with your family.",
+    scr5_btn: "View Proposal Again",
+    
+    submit_err: "An error occurred during submission. Please try again in a moment."
+  }
+};
+
+const A=["","","",{tech:"",etc:"",use:""},""];
+let cur=0;
+
+function getLang() {
+  return localStorage.getItem('combination_lang') || 'ko';
+}
+
+function getActiveTECH() {
+  const lang = getLang();
+  return TECH.map(t => {
+    const tr = TECH_TRANS[lang][t.id] || { label: t.label, desc: t.desc };
+    return { id: t.id, label: tr.label, desc: tr.desc };
+  });
+}
+
+function getActiveQ() {
+  const lang = getLang();
+  return Q_TRANS[lang];
+}
+
+function techName(){
+  const t=A[3];
+  if(!t.tech)return "";
+  const lang = getLang();
+  if (t.tech==="기타") return t.etc||"";
+  const tr = TECH_TRANS[lang][t.tech];
+  return tr ? tr.label : t.tech;
+}
+
+function esc(s){return (s||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+
+function go(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('scr'+n).classList.add('on');
+  for(let i=0;i<5;i++) document.getElementById('s'+i).classList.toggle('on',i<=Math.min(n,4));
+  if(n===4){fillEditors();buildProposal();}
+  if(n===2){var f=document.getElementById('yt');f.src=f.src;}
+  window.scrollTo(0,0);
+}
+
+function showQ(i){
+  cur=i;
+  const q=getActiveQ()[i];
+  const lang = getLang();
+  document.getElementById('qno').textContent=q.no+" / 5";
+  document.getElementById('qtext').textContent=q.text;
+  document.getElementById('nextq').textContent=(i===4) ? (lang === 'en' ? "Create Proposal" : "제안서 만들기") : (lang === 'en' ? "Next" : "다음");
+  
+  if(q.tech){
+    document.getElementById('normalBox').style.display='none';
+    document.getElementById('techBox').style.display='block';
+    renderCards();
+    document.getElementById('use').value=A[3].use;
+    document.getElementById('etc').value=A[3].etc;
+    document.getElementById('etcwrap').style.display=(A[3].tech==="기타")?'block':'none';
+  }else{
+    document.getElementById('normalBox').style.display='block';
+    document.getElementById('techBox').style.display='none';
+    document.getElementById('ans').value=A[i];
+    document.getElementById('qhint').textContent=q.hint;
+    document.getElementById('exbox').innerHTML="<b>" + (lang === 'en' ? "Example" : "예시") + "</b>" + q.ex.join(" · ");
+    setTimeout(()=>document.getElementById('ans').focus(),50);
+  }
+  buildPv();
+}
+
+function renderCards(){
+  document.getElementById('cards').innerHTML=getActiveTECH().map(t=>
+    "<div class='tcard"+(A[3].tech===t.id?" sel":"")+"' onclick=\"pickTech('"+t.id+"')\">"+
+    t.label+"<small>"+t.desc+"</small></div>").join("");
+}
+
+function pickTech(id){
+  A[3].tech=id;
+  document.getElementById('etcwrap').style.display=(id==="기타")?'block':'none';
+  renderCards();buildPv();
+  if(id==="기타") setTimeout(()=>document.getElementById('etc').focus(),50);
+}
+
+document.getElementById('ans').addEventListener('input',e=>{A[cur]=e.target.value;buildPv()});
+
+function nextQ(){if(!getActiveQ()[cur].tech)A[cur]=document.getElementById('ans').value;if(cur<4)showQ(cur+1);else go(4);}
+function prevQ(){if(!getActiveQ()[cur].tech)A[cur]=document.getElementById('ans').value;if(cur>0)showQ(cur-1);else go(2);}
+
+function sentences(blankStyle){
+  const b=s=>s?"<span class='k'>"+esc(s)+"</span>":"<span class='blank'>"+blankStyle+"</span>";
+  const tn=techName();
+  const lang = getLang();
+  
+  if (lang === 'en') {
+    const tech=tn?("using <span class='k'>"+esc(tn)+"</span> AI"):"using <span class='blank'>"+blankStyle+" AI</span>";
+    return [
+      "Our family proposes an AI that helps with "+b(A[1])+" for "+b(A[0])+".",
+      "Because "+b(A[2])+".",
+      "This AI helps "+tech+" to "+b(A[3].use)+".",
+      "So, our family can "+b(A[4])+"."
+    ];
+  } else {
+    const tech=tn?("<span class='k'>"+esc(tn)+"</span> AI"):"<span class='blank'>"+blankStyle+" AI</span>";
+    return [
+      "우리 가족은 "+b(A[0])+"를 위해 "+b(A[1])+"를 도와주는 AI를 제안합니다.",
+      "왜냐하면 "+b(A[2])+" 때문입니다.",
+      "이 AI는 "+tech+"를 활용해 "+b(A[3].use)+".",
+      "그래서 우리 가족은 "+b(A[4])+" 수 있습니다."
+    ];
+  }
+}
+
+function buildPv(){document.getElementById('pvtext').innerHTML=sentences("◯◯◯").join("<br>");}
+
+function fillEditors(){
+  document.getElementById('e0').value=A[0];
+  document.getElementById('e1').value=A[1];
+  document.getElementById('e2').value=A[2];
+  document.getElementById('e4tech').value=techName();
+  document.getElementById('e4use').value=A[3].use;
+  document.getElementById('e5').value=A[4];
+}
+
+function syncEdit(){
+  A[0]=document.getElementById('e0').value;
+  A[1]=document.getElementById('e1').value;
+  A[2]=document.getElementById('e2').value;
+  A[4]=document.getElementById('e5').value;
+  const tv=document.getElementById('e4tech').value;
+  if(A[3].tech==="기타"||!A[3].tech){A[3].tech="기타";A[3].etc=tv;} else {A[3].tech=tv;}
+  A[3].use=document.getElementById('e4use').value;
+  buildProposal();
+}
+
+function buildProposal(){
+  const lang = getLang();
+  document.getElementById('cbody').innerHTML=sentences("◯◯◯").join("<br>");
+  const nm=(document.getElementById('fam').value||"").trim();
+  
+  let fam = "";
+  let titleText = "";
+  let signText = "";
+  let sealText = "";
+  
+  if (lang === 'en') {
+    fam = nm ? nm + "'s Family" : "Our Family";
+    titleText = "AI Proposal for All<br>by " + esc(fam);
+    signText = "Proposed by: " + fam;
+    sealText = nm ? esc(nm.slice(0,Math.ceil(nm.length/2)))+"<br>"+esc(nm.slice(Math.ceil(nm.length/2))) : "Family<br>Seal";
+  } else {
+    fam = nm ? nm + " 가족" : "○○○ 가족";
+    titleText = esc(fam) + "의<br>모두를 위한 AI 제안서";
+    signText = "제안 : " + fam;
+    sealText = nm ? esc(nm.slice(0,Math.ceil(nm.length/2)))+"<br>"+esc(nm.slice(Math.ceil(nm.length/2))) : "우리<br>가족";
+  }
+  
+  document.getElementById('ctitle').innerHTML=titleText;
+  document.getElementById('csign').textContent=signText;
+  document.getElementById('cseal').innerHTML=sealText;
+  
+  const d=new Date();
+  if (lang === 'en') {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    document.getElementById('cdate').textContent = `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  } else {
+    document.getElementById('cdate').textContent=d.getFullYear()+"년 "+(d.getMonth()+1)+"월 "+d.getDate()+"일";
+  }
+}
+
+async function submit() {
+  const btn = document.getElementById('submitBtn');
+  const nm = (document.getElementById('fam').value || "").trim();
+  const lang = getLang();
+  const i18n = STATIC_I18N[lang];
+  
+  btn.textContent = i18n.scr4_btn_submitting;
+  btn.disabled = true;
+
+  try {
+    const cardEl = document.getElementById('cardbox');
+    const canvas = await html2canvas(cardEl, { 
+      scale: 2, 
+      useCORS: true, 
+      backgroundColor: "#FAF8F3" 
+    });
+    
+    const base64Image = canvas.toDataURL("image/png");
+    const base64Data = base64Image.split(',')[1];
+
+    const combinedQ4 = `[AI기술: ${techName()}] 할일: ${A[3].use} / 기대효과: ${A[4]}`;
+
+    const payload = {
+      name: nm || (lang === 'en' ? "Unnamed" : "이름없음"),
+      q1: A[0],
+      q2: A[1],
+      q3: A[2],
+      q4: combinedQ4,
+      image: base64Data
+    };
+
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    
+    go(5);
+  } catch (error) {
+    console.error('Error!', error);
+    alert(i18n.submit_err);
+    btn.textContent = i18n.scr4_btn_submit;
+    btn.disabled = false;
+  }
+}
+
+function applyLanguage() {
+  const lang = getLang();
+  const i18n = STATIC_I18N[lang];
+  if (!i18n) return;
+  
+  // Set texts for HTML elements
+  const elIds = [
+    'scr0_title', 'scr0_sub', 'scr0_label', 'scr0_hint', 'scr0_btn',
+    'scr1_title', 'scr1_sub', 'scr1_link_pos_b', 'scr1_link_pos_s', 'scr1_link_pos_e',
+    'scr1_link_neg_b', 'scr1_link_neg_s', 'scr1_link_neg_e', 'scr1_note', 'scr1_check',
+    'scr1_btn_prev',
+    'scr2_title', 'scr2_sub', 'scr2_fallback', 'scr2_note', 'scr2_check',
+    'scr2_btn_prev',
+    'scr3_btn_prev', 'scr3_etc_label', 'scr3_use_label', 'scr3_tech_ex', 'scr3_preview_cap',
+    'scr4_title', 'scr4_sub', 'scr4_editnote',
+    'scr4_e0_title', 'scr4_e1_title', 'scr4_e2_title', 'scr4_e4_title', 'scr4_e5_title',
+    'scr4_btn_prev', 'submitBtn',
+    'scr5_title', 'scr5_sub', 'scr5_btn'
+  ];
+  
+  elIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (id.includes('sub') || id.includes('note') || id.includes('fallback') || id.includes('ex')) {
+        el.innerHTML = i18n[id];
+      } else {
+        el.textContent = i18n[id];
+      }
+    }
+  });
+
+  // Next buttons scr1 / scr2 text update
+  const g1 = document.getElementById('g1');
+  if (g1) g1.textContent = i18n.scr1_btn_next;
+  const g2 = document.getElementById('g2');
+  if (g2) g2.textContent = i18n.scr2_btn_next;
+
+  // Handle placeholders
+  const fam = document.getElementById('fam');
+  if (fam) fam.setAttribute('placeholder', i18n.scr0_placeholder);
+  const ans = document.getElementById('ans');
+  if (ans) ans.setAttribute('placeholder', i18n.scr3_placeholder);
+  const etc = document.getElementById('etc');
+  if (etc) etc.setAttribute('placeholder', i18n.scr3_etc_placeholder);
+  const use = document.getElementById('use');
+  if (use) use.setAttribute('placeholder', i18n.scr3_use_placeholder);
+  
+  const e4tech = document.getElementById('e4tech');
+  if (e4tech) e4tech.setAttribute('placeholder', i18n.scr4_e4tech_placeholder);
+  const e4use = document.getElementById('e4use');
+  if (e4use) e4use.setAttribute('placeholder', i18n.scr4_e4use_placeholder);
+
+  // Home link
+  const homeBtn = document.querySelector('.home-btn-shape');
+  if (homeBtn) {
+    homeBtn.innerHTML = lang === 'en' ? '🏠 Home' : '🏠 홈으로';
+  }
+
+  // Active lang buttons toggle
+  document.querySelectorAll('.lang-btn-sub').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  
+  // Update state buttons & question text dynamically if Screen 3 is active
+  const screen3 = document.getElementById('scr3');
+  if (screen3 && screen3.classList.contains('on')) {
+    showQ(cur);
+  }
+  
+  // Re-build preview & proposals
+  buildPv();
+  buildProposal();
+}
+
+buildPv();
+
+// 언어 선택 기능 추가
+document.querySelectorAll('.lang-btn-sub').forEach(btn => {
+  btn.addEventListener('click', () => {
+    localStorage.setItem('combination_lang', btn.dataset.lang);
+    applyLanguage();
+  });
+});
+
+// localStorage 값에 따라 초기화
+const savedLang = localStorage.getItem('combination_lang') || 'ko';
+applyLanguage();
+</script>
+</body>
+</html>

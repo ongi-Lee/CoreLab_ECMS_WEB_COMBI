@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="말랑말랑 AI 그림 책방 - 초등학생을 위한 AI 그림 생성기. 주인공, 배경, 행동을 골라 나만의 그림을 만들어보세요!">
+    <meta name="keywords" content="AI 그림, 어린이, 초등학생, 그림 책방, AI 아트">
+    <meta name="author" content="말랑말랑 AI 그림 책방">
+    <title>말랑말랑 AI 그림 책방</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 로그인 화면 Overlay -->
+    <div id="loginOverlay" class="login-overlay" hidden>
+        <div class="login-card">
+            <h2 id="loginTitle">🎨 말랑말랑 AI 그림 책방</h2>
+            <p class="login-subtitle" id="loginSub">재미있는 AI 그림 나라로 들어가기 위해<br>선생님이 주신 아이디와 비밀번호를 입력해요! ✨</p>
+            <div class="login-form">
+                <div class="input-group">
+                    <label for="loginId" id="labelLoginId">아이디</label>
+                    <input type="text" id="loginId" placeholder="아이디를 입력하세요 (예: TEST_01)" autocomplete="username" />
+                </div>
+                <div class="input-group">
+                    <label for="loginPw" id="labelLoginPw">비밀번호</label>
+                    <input type="password" id="loginPw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
+                </div>
+                <button id="loginBtn" class="login-btn">🚪 책방 들어가기!</button>
+                <div id="loginError" class="login-error-message" hidden></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 컨테이너 (로그인 완료 시 노출) -->
+    <div id="mainContainer" class="container">
+        <button id="logoutBtn" class="logout-btn" hidden>🔒 로그아웃</button>
+        <div class="top-actions">
+            <a href="../index.html" class="home-btn-create">🏠 홈으로</a>
+            <div class="lang-selector-sub">
+                <button class="lang-btn-sub active" data-lang="ko">Korean</button>
+                <button class="lang-btn-sub" data-lang="en">English</button>
+            </div>
+        </div>
+
+        <header>
+            <h1 id="mainTitle">🎨 말랑말랑 AI 그림 책방</h1>
+            <p class="subtitle" id="mainSub">주인공, 배경, 행동을 골라서 나만의 특별한 그림을 만들어봐요! ✨</p>
+        </header>
+
+        <!-- Step 1: 주인공 고르기 -->
+        <section class="step-section" id="step1">
+            <div class="step-header">
+                <span class="step-badge">Step 1</span>
+                <h2 class="step-title" id="step1Title">주인공 고르기</h2>
+            </div>
+            <p class="step-description" id="step1Desc">그림의 주인공을 골라주세요!</p>
+            <div class="selection-grid" id="characterGrid">
+                <button class="selection-btn" data-type="char" data-value="코끼리">
+                    <span class="emoji">🐘</span>
+                    코끼리
+                </button>
+
+                <button class="selection-btn" data-type="char" data-value="호랑이">
+                    <span class="emoji">🐯</span>
+                    호랑이
+                </button>
+                <button class="selection-btn" data-type="char" data-value="토끼">
+                    <span class="emoji">🐰</span>
+                    토끼
+                </button>
+
+
+                <button class="selection-btn" data-type="char" data-value="참새">
+                    <span class="emoji">🐦</span>
+                    참새
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 2: 배경 고르기 -->
+        <section class="step-section" id="step2">
+            <div class="step-header">
+                <span class="step-badge">Step 2</span>
+                <h2 class="step-title" id="step2Title">배경 고르기</h2>
+            </div>
+            <p class="step-description" id="step2Desc">어디서 그림이 펼쳐질까요?</p>
+            <div class="selection-grid" id="backgroundGrid">
+                <button class="selection-btn" data-type="bg" data-value="우주">
+                    <span class="emoji">🚀</span>
+                    우주
+                </button>
+                <button class="selection-btn" data-type="bg" data-value="숲 속">
+                    <span class="emoji">🌳</span>
+                    숲 속
+                </button>
+                <button class="selection-btn" data-type="bg" data-value="바다">
+                    <span class="emoji">🐳</span>
+                    바다
+                </button>
+                <button class="selection-btn" data-type="bg" data-value="해변">
+                    <span class="emoji">🏖️</span>
+                    해변
+                </button>
+
+            </div>
+        </section>
+
+        <!-- Step 3: 행동 고르기 -->
+        <section class="step-section" id="step3">
+            <div class="step-header">
+                <span class="step-badge">Step 3</span>
+                <h2 class="step-title" id="step3Title">행동 고르기</h2>
+            </div>
+            <p class="step-description" id="step3Desc">주인공이 무엇을 하고 있을까요?</p>
+            <div class="selection-grid" id="actionGrid">
+                <button class="selection-btn" data-type="action" data-value="춤을 추고">
+                    <span class="emoji">💃</span>
+                    춤추기
+                </button>
+                <button class="selection-btn" data-type="action" data-value="폴짝폴짝 뛰고">
+                    <span class="emoji">🤸</span>
+                    뛰기
+                </button>
+                <button class="selection-btn" data-type="action" data-value="신나게 달리고">
+                    <span class="emoji">🏃</span>
+                    달리기
+                </button>
+
+
+
+                <button class="selection-btn" data-type="action" data-value="노래를 부르고">
+                    <span class="emoji">🎤</span>
+                    노래하기
+                </button>
+            </div>
+        </section>
+
+        <!-- Prompt Preview Zone -->
+        <div class="prompt-preview-zone">
+            <div class="prompt-header">
+                <label class="prompt-label" id="labelPromptMagic">📝 AI가 만든 마법 주문</label>
+                <span class="readonly-badge" id="labelReadonly">🔒 학생 수정 불가</span>
+            </div>
+            <div id="promptDisplay" class="prompt-display" aria-live="polite" aria-label="AI가 생성한 프롬프트 표시 영역">
+                <span class="prompt-placeholder" id="promptPlaceholder">위에서 주인공, 배경, 행동을 모두 고르면 여기에 마법 주문이 나타나요! ✨</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+
+            <!-- 마법 주문 남은 횟수 배지 -->
+            <div id="promptCountBadge" class="count-badge" hidden></div>
+
+            <button id="createPromptBtn" class="create-btn" disabled aria-label="AI 마법 주문 만들기">
+                📝 마법 주문 만들기
+            </button>
+
+            <!-- 그림 그리기 남은 횟수 배지 -->
+            <div id="countBadge" class="count-badge" hidden>
+                <span class="count-icon">🎨</span>
+                <span id="labelRemainingCountText">그림 그리기 남은 횟수: </span>
+                <span id="remainingCount" class="count-number">5</span>
+                <span id="labelCountUnit">회</span>
+            </div>
+
+            <button id="generateBtn" class="generate-btn" disabled aria-label="AI에게 그림 그려달라고 하기">
+                🎨 AI에게 그림 그려달라고 하기
+            </button>
+        </div>
+
+        <!-- Loading Box: Prompt Generation -->
+        <div id="loadingBox" class="loading-box" hidden aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <p class="loading-text" id="promptLoadingText">마법 주문을 만들고 있어요...</p>
+        </div>
+
+        <!-- Loading Box: Image Generation -->
+        <div id="imageLoadingBox" class="loading-box image-loading-box" hidden aria-live="polite">
+            <div class="spinner image-spinner" aria-hidden="true"></div>
+            <p class="loading-text" id="imageLoadingText">AI 화가가 열심히 그림을 그리고 있어요... 🎨</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" hidden role="alert" aria-live="assertive"></div>
+
+        <!-- Output Zone: 완성된 그림 -->
+        <div id="outputZone" class="output-zone" hidden>
+            <div class="output-header">
+                <label class="output-label" id="labelResultTitle">🎨 AI가 그린 마법 그림</label>
+                <span class="success-badge" id="labelResultBadge">✨ 완성!</span>
+            </div>
+            <p class="output-description" id="labelResultDesc">주인공, 배경, 행동 주문으로 탄생한 세상에 단 하나뿐인 그림이에요.</p>
+            <div class="image-wrapper">
+                <img id="resultImage" class="result-image" src="" alt="AI가 생성한 그림" />
+            </div>
+        </div>
+
+        <!-- Step 4: 두 그림 차이 비교하기 -->
+        <section class="step-section compare-section" id="step4" hidden>
+            <div class="step-header">
+                <span class="step-badge">Step 4</span>
+                <h2 class="step-title" id="step4Title">두 그림 차이 비교하기 🔍</h2>
+            </div>
+            <p class="step-description" id="step4Desc">첫 번째 그림에서 딱 하나만 다른 것으로 바꿔서 두 그림을 서로 비교해 봐요!</p>
+            
+            <!-- 주인공 바꾸기 카테고리 -->
+            <div class="sub-step-wrapper">
+                <div class="step-header">
+                    <span class="step-badge sub-badge" id="badgeCompareChar">주인공</span>
+                    <h2 class="step-title sub-title" id="titleCompareChar">새로운 주인공 고르기</h2>
+                </div>
+                <div class="selection-grid compare-option-grid" id="compareCharGrid">
+                    <button type="button" class="selection-btn compare-option-btn" data-category="character" data-value="코끼리"><span class="emoji">🐘</span>코끼리</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="character" data-value="호랑이"><span class="emoji">🐯</span>호랑이</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="character" data-value="토끼"><span class="emoji">🐰</span>토끼</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="character" data-value="참새"><span class="emoji">🐦</span>참새</button>
+                </div>
+            </div>
+
+            <!-- 배경 바꾸기 카테고리 -->
+            <div class="sub-step-wrapper">
+                <div class="step-header">
+                    <span class="step-badge sub-badge" id="badgeCompareBg">배경</span>
+                    <h2 class="step-title sub-title" id="titleCompareBg">새로운 배경 고르기</h2>
+                </div>
+                <div class="selection-grid compare-option-grid" id="compareBgGrid">
+                    <button type="button" class="selection-btn compare-option-btn" data-category="background" data-value="우주"><span class="emoji">🚀</span>우주</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="background" data-value="숲 속"><span class="emoji">🌳</span>숲 속</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="background" data-value="바다"><span class="emoji">🐳</span>바다</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="background" data-value="해변"><span class="emoji">🏖️</span>해변</button>
+                </div>
+            </div>
+
+            <!-- 행동 바꾸기 카테고리 -->
+            <div class="sub-step-wrapper">
+                <div class="step-header">
+                    <span class="step-badge sub-badge" id="badgeCompareAction">행동</span>
+                    <h2 class="step-title sub-title" id="titleCompareAction">새로운 행동 고르기</h2>
+                </div>
+                <div class="selection-grid compare-option-grid" id="compareActionGrid">
+                    <button type="button" class="selection-btn compare-option-btn" data-category="action" data-value="춤을 추고"><span class="emoji">💃</span>춤추기</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="action" data-value="폴짝폴짝 뛰고"><span class="emoji">🤸</span>뛰기</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="action" data-value="신나게 달리고"><span class="emoji">🏃</span>달리기</button>
+                    <button type="button" class="selection-btn compare-option-btn" data-category="action" data-value="노래를 부르고"><span class="emoji">🎤</span>노래하기</button>
+                </div>
+            </div>
+
+            <!-- 두 번째 그림 완성하기 -->
+            <div id="compareActionZone" class="sub-step-wrapper" hidden>
+                <div class="step-header">
+                    <span class="step-badge sub-badge no-bg" id="badgeCompareFinish">완성</span>
+                    <h2 class="step-title sub-title" id="titleCompareFinish">두 번째 그림 완성하기</h2>
+                </div>
+                <p class="step-description" id="descCompareFinish">버튼 아래를 눌러 두 번째 마법 그림을 완성해 봐요!</p>
+                <button type="button" id="compareGenerateBtn" class="generate-btn" style="margin-top: 10px;" disabled>
+                    🎨 두 번째 그림 그리기!
+                </button>
+            </div>
+
+            <!-- 두 그림 비교 스페이스 -->
+            <div class="compare-grid" style="margin-top: 36px;">
+                <!-- 첫 번째 그림 카드 -->
+                <div class="compare-card first-card">
+                    <div class="card-tag tag-first" id="labelFirstCard">첫 번째 그림 🎨</div>
+                    <div class="compare-image-wrapper">
+                        <img id="compareImg1" src="" alt="첫 번째 그림" />
+                    </div>
+                    <div class="compare-selections" id="compareSelections1">
+                        <!-- 선택 정보 -->
+                    </div>
+                </div>
+
+                <!-- 두 번째 그림 카드 -->
+                <div class="compare-card second-card">
+                    <div class="card-tag tag-second" id="labelSecondCard">두 번째 그림 🎨</div>
+                    <div class="compare-image-wrapper placeholder" id="compareImg2Wrapper">
+                        <div class="placeholder-text" id="labelSecondPlaceholder">여기에 두 번째 그림이 그려질 거예요!</div>
+                        <img id="compareImg2" src="" alt="두 번째 그림" hidden />
+                    </div>
+                    <div class="compare-selections" id="compareSelections2">
+                        <!-- 선택 정보 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 차이점 적기 공간 (두 번째 그림 완성 시 노출) -->
+            <div id="differenceNoteZone" class="difference-note-zone" hidden>
+                <div class="note-header">
+                    <h3 id="differenceTitle">📝 두 그림의 차이점 기록장</h3>
+                </div>
+                <p class="note-description" id="differenceDesc">두 그림에서 달라진 부분이 무엇인지 글로 직접 써보세요!</p>
+                <textarea id="differenceInput" placeholder="예: 첫 번째 그림에서는 코끼리가 우주에서 춤을 췄는데, 두 번째 그림에서는 코끼리 대신 사자가 춤을 추고 있어요. 주인공이 바뀌었어요!"></textarea>
+                
+                <div class="submit-info-row" style="display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px;">
+                        <label for="submitClass" id="labelSubmitClass" style="font-size: 0.85rem; font-weight: 700; color: #475569;">학년/반</label>
+                        <input type="text" id="submitClass" placeholder="예: 5학년 2반" style="width: 100%; padding: 10px 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; outline: none; font-family: inherit;" />
+                    </div>
+                    <div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px;">
+                        <label for="submitName" id="labelSubmitName" style="font-size: 0.85rem; font-weight: 700; color: #475569;">학생 이름</label>
+                        <input type="text" id="submitName" placeholder="예: 홍길동" style="width: 100%; padding: 10px 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; outline: none; font-family: inherit;" />
+                    </div>
+                </div>
+                <button type="button" id="submitDiffBtn" class="submit-btn" disabled>선생님에게 제출하기 🚀</button>
+                <div id="submitResultMsg" class="submit-success-message" hidden></div>
+            </div>
+        </section>
+
+    </div><!-- /.container -->
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="우리 집 AI 검증 탐험대 - 집안 곳곳에 숨은 AI를 찾고 나의 AI 검증 습관을 신호등으로 확인해요!">
+  <title>🚦 우리 집 AI 검증 탐험대</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #EAF3EC;
+      background-image: radial-gradient(#d7e6da 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
+      padding: 16px 14px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+      color: #1B3140;
+    }
+    .topbar {
+      width: 100%; max-width: 520px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .logo { font-family: 'Jua',sans-serif; font-size: 19px; }
+    .who {
+      font-size: 13px; background: #fff;
+      border: 2px solid #1B3140; border-radius: 999px; padding: 3px 10px;
+    }
+    .signal-bar {
+      width: 100%; max-width: 520px;
+      display: flex; justify-content: center; gap: 18px;
+      background: #1B3140; border-radius: 999px;
+      padding: 10px 16px; margin-bottom: 14px;
+    }
+    .lamp-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .lamp {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #2c4356; border: 2px solid #10222e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; transition: all .3s;
+    }
+    .lamp.on { box-shadow: 0 0 10px rgba(255,255,255,.45); }
+    .lamp-label { font-size: 11px; color: #7d97a8; }
+    .lamp-label.on { color: #fff; font-weight: 700; }
+
+    .card {
+      width: 100%; max-width: 520px;
+      background: #fff; border: 2.5px solid #1B3140;
+      border-radius: 22px; padding: 22px 20px;
+      box-shadow: 6px 6px 0 #1B3140;
+    }
+    .card.result { box-shadow: 6px 6px 0 currentColor; }
+
+    .hero-signal { display: flex; gap: 8px; margin-bottom: 10px; }
+    .hero-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #1B3140; }
+    .hero-dot.red  { background: #FF6357; }
+    .hero-dot.amber { background: #F5A623; }
+    .hero-dot.green { background: #2FBE84; }
+
+    .title { font-family: 'Jua',sans-serif; font-size: 34px; line-height: 1.15; margin: 0 0 8px; }
+    .h2 { font-family: 'Jua',sans-serif; font-size: 24px; margin: 6px 0 8px; }
+    .h2.center { text-align: center; }
+    .lead { font-size: 15px; line-height: 1.55; margin: 0 0 16px; }
+    .lead.center { text-align: center; }
+    .hint { font-size: 13px; color: #5b7284; }
+
+    .mission-tag {
+      display: inline-block; font-family: 'Jua',sans-serif;
+      color: #fff; font-size: 13px; padding: 3px 12px;
+      border-radius: 999px; border: 2px solid #1B3140; margin-bottom: 10px;
+    }
+
+    .field-label { display: block; font-weight: 700; font-size: 14px; margin: 14px 0 6px; }
+    .input {
+      width: 100%; border: 2px solid #1B3140; border-radius: 12px;
+      padding: 11px 12px; font-size: 15px; font-family: inherit; background: #F7FAF7;
+    }
+    .input:focus { outline: 3px solid #5CA9F5; outline-offset: 1px; }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border: 2px solid #1B3140; background: #fff;
+      border-radius: 999px; padding: 7px 12px;
+      font-size: 13px; font-family: inherit; cursor: pointer;
+    }
+    .chip.sel { background: #1B3140; color: #fff; font-weight: 700; }
+
+    .btn {
+      width: 100%; margin-top: 14px; border-radius: 14px;
+      padding: 14px; font-size: 16px; font-family: 'Jua',sans-serif;
+      cursor: pointer; border: 2.5px solid #1B3140; transition: transform .08s;
+    }
+    .btn:active { transform: translate(2px,2px); }
+    .btn.primary { background: #2FBE84; color: #fff; box-shadow: 3px 3px 0 #1B3140; }
+    .btn.primary:disabled { background: #c7d6cd; color: #7d8f85; box-shadow: none; cursor: not-allowed; }
+    .btn.ghost { background: #fff; color: #1B3140; }
+    .btn.small { padding: 9px; font-size: 14px; box-shadow: none; }
+
+    .photo-drop {
+      display: block; border: 2.5px dashed #1B3140;
+      border-radius: 16px; background: #F0F7F2; overflow: hidden;
+    }
+    .photo-drop.has { border-style: solid; background: #fff; }
+    .photo-empty {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 6px; padding: 34px 10px; font-size: 14px; font-weight: 700;
+    }
+    .photo-emoji { font-size: 40px; }
+    .photo-preview { display: block; width: 100%; max-height: 300px; object-fit: contain; background: #1B3140; }
+    .photo-btn { background: #5CA9F5; color: #fff; box-shadow: 3px 3px 0 #1B3140; font-size: 15px; padding: 13px; }
+    .center-hint { text-align: center; display: block; margin: 8px 0 0; }
+    .notice { color: #FF6357; font-size: 13px; font-weight: 700; margin: 6px 0; }
+
+    .mini-review {
+      display: flex; gap: 10px; align-items: center;
+      background: #F0F7F2; border: 2px solid #1B3140;
+      border-radius: 14px; padding: 8px 10px; margin-bottom: 14px;
+    }
+    .mini-thumb { width: 54px; height: 54px; border-radius: 10px; object-fit: cover; border: 2px solid #1B3140; flex-shrink: 0; }
+    .mini-desc { font-size: 13px; line-height: 1.4; }
+
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ai-card {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+      text-align: left; border: 2px solid #1B3140; border-radius: 14px;
+      background: #fff; padding: 12px 11px; cursor: pointer;
+      font-family: inherit; transition: all .12s;
+    }
+    .ai-card.sel { background: #1B3140; color: #fff; box-shadow: 3px 3px 0 #2FBE84; transform: translateY(-2px); }
+    .ai-emoji { font-size: 26px; }
+    .ai-name { font-weight: 800; font-size: 14px; line-height: 1.25; }
+    .ai-desc { font-size: 12px; opacity: .75; }
+
+    .check-item { border: 2px solid #1B3140; border-radius: 14px; padding: 12px; margin-bottom: 12px; background: #FBFDFB; }
+    .check-tag { display: inline-block; font-size: 11px; font-weight: 800; background: #5CA9F5; color: #fff; border-radius: 999px; padding: 2px 9px; margin-right: 6px; }
+    .check-q { font-size: 14px; line-height: 1.5; margin: 6px 0 10px; font-weight: 600; }
+    .scale-row { display: flex; gap: 6px; }
+    .scale-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      border: 2px solid #1B3140; border-radius: 12px; background: #fff;
+      padding: 8px 4px; font-size: 12px; font-family: inherit; font-weight: 700; cursor: pointer;
+    }
+    .scale-btn .s-emoji { font-size: 20px; }
+    .scale-btn.sel { background: #FFE9A8; box-shadow: 2px 2px 0 #1B3140; }
+
+    .big-signal {
+      width: 74px; margin: 4px auto 14px; background: #1B3140;
+      border-radius: 18px; padding: 12px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      border: 2.5px solid #10222e;
+    }
+    .big-lamp { width: 44px; height: 44px; border-radius: 50%; background: #2c4356; transition: all .5s; }
+    .big-lamp.lit { box-shadow: 0 0 18px rgba(255,255,255,.6); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .big-lamp.lit { animation: none; } }
+
+    .score-line { text-align: center; font-size: 15px; margin: 0 0 10px; }
+    .result-summary {
+      display: flex; gap: 12px; align-items: center;
+      border: 2px solid #1B3140; border-radius: 14px;
+      padding: 10px 12px; background: #F7FAF7; margin-bottom: 14px;
+    }
+    .result-thumb { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; border: 2px solid #1B3140; flex-shrink: 0; }
+    .rs-line { margin: 2px 0; font-size: 14px; }
+    .rs-desc { font-size: 13px; color: #4a6172; }
+
+    .tips { border: 2px dashed #1B3140; border-radius: 14px; padding: 12px; background: #FFF8E6; margin-bottom: 10px; }
+    .tips-title { font-family: 'Jua',sans-serif; margin: 0 0 8px; font-size: 16px; }
+    .tip-line { font-size: 13px; line-height: 1.5; margin: 6px 0; }
+    .saved-note { text-align: center; font-size: 12.5px; color: #5b7284; margin: 8px 0 0; }
+
+    .history-item { display: flex; gap: 10px; border: 2px solid #1B3140; border-radius: 14px; padding: 10px; margin-bottom: 10px; background: #FBFDFB; }
+    .history-body { min-width: 0; }
+    .hist-when { font-size: 11.5px; color: #7d8f85; margin-left: 4px; }
+
+    .foot { margin-top: 18px; font-size: 12px; color: #5b7284; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 380px) { .card-grid { grid-template-columns: 1fr; } .signal-bar { gap: 10px; } }
+    @media (min-width: 768px) {
+      .topbar, .signal-bar, .card { max-width: 800px; padding-left: 40px; padding-right: 40px; }
+      .card-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+      .title { font-size: 42px; }
+      .h2 { font-size: 28px; }
+      .photo-preview { max-height: 400px; }
+      .scale-row { gap: 12px; }
+      .scale-btn { padding: 12px 8px; font-size: 15px; }
+    .home-btn {
+      font-size: 13px; background: #fff;
+      border: 2px solid #1B3140; border-radius: 999px; padding: 3px 10px;
+      color: #1B3140; text-decoration: none; font-weight: bold;
+      transition: all 0.2s;
+    }
+    .home-btn:hover {
+      background: #1B3140; color: #fff;
+    }
+    .lang-selector-sub {
+      display: inline-flex;
+      background: #fff;
+      border: 2px solid #1B3140;
+      border-radius: 999px;
+      padding: 2px;
+    }
+    .lang-btn-sub {
+      background: none;
+      border: none;
+      color: #7d97a8;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .lang-btn-sub:hover {
+      color: #1B3140;
+    }
+    .lang-btn-sub.active {
+      background: #1B3140;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <span class="logo" id="logoText">🚦 우리 집 AI 검증 탐험대</span>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <span class="who hidden" id="whoTag"></span>
+    <a href="../index.html" class="home-btn" id="homeBtnText">🏠 홈으로</a>
+    <div class="lang-selector-sub">
+      <button class="lang-btn-sub active" data-lang="ko">Korean</button>
+      <button class="lang-btn-sub" data-lang="en">English</button>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Signal Bar -->
+<div class="signal-bar hidden" id="signalBar">
+  <div class="lamp-wrap">
+    <div class="lamp" id="lamp0" data-emoji="📸"></div>
+    <span class="lamp-label" id="label0">찰칵</span>
+  </div>
+  <div class="lamp-wrap">
+    <div class="lamp" id="lamp1" data-emoji="🃏"></div>
+    <span class="lamp-label" id="label1">고르기</span>
+  </div>
+  <div class="lamp-wrap">
+    <div class="lamp" id="lamp2" data-emoji="✅"></div>
+    <span class="lamp-label" id="label2">점검</span>
+  </div>
+  <div class="lamp-wrap">
+    <div class="lamp" id="lamp3" data-emoji="🚦"></div>
+    <span class="lamp-label" id="label3">신호등</span>
+  </div>
+</div>
+
+<!-- ── START ── -->
+<div class="card" id="screenStart">
+  <div class="hero-signal">
+    <span class="hero-dot red"></span>
+    <span class="hero-dot amber"></span>
+    <span class="hero-dot green"></span>
+  </div>
+  <h1 class="title" id="startTitle">우리 집 AI<br>검증 탐험대</h1>
+  <p class="lead" id="startLead">집안 곳곳에 숨은 AI를 찾고, 내가 AI를 <b>똑똑하게 검증</b>하며 쓰고 있는지 신호등으로 확인해 봐요!</p>
+
+  <label class="field-label" id="labelCls">반</label>
+  <input class="input" id="inputCls" placeholder="예) 5학년 2반">
+
+  <label class="field-label" id="labelName">학생 이름</label>
+  <input class="input" id="inputName" placeholder="예) 홍길동">
+
+  <label class="field-label" id="labelRelation">지금 참여하는 사람은?</label>
+  <div class="chip-row" id="relationChips"></div>
+
+  <button class="btn primary" id="btnStart" disabled onclick="startMission()">미션 시작하기 🚀</button>
+  <button class="btn ghost hidden" id="btnHistory" onclick="showScreen('history')">내 미션 기록 보기</button>
+</div>
+
+<!-- ── PHOTO ── -->
+<div class="card hidden" id="screenPhoto">
+  <span class="mission-tag" style="background:#FF6357" id="tagMission1">미션 1</span>
+  <h2 class="h2" id="photoTitle">AI 활용 장면, 찰칵! 📸</h2>
+  <p class="lead" id="photoLead">집에서 AI가 쓰이는 장면이나 기기를 찾아 사진으로 찍어 보세요.<br>
+    <span class="hint" id="photoHint">예) 아빠 차의 내비게이션, 거실 AI 스피커, 로봇청소기</span>
+  </p>
+
+  <input type="file" accept="image/*" id="fileInput" class="hidden" onchange="onPickPhoto(event)">
+
+  <div class="photo-drop" id="photoDrop">
+    <div class="photo-empty" id="photoEmpty">
+      <span class="photo-emoji">📷</span>
+      <span id="photoEmptyText">사진을 준비해 주세요</span>
+    </div>
+    <img id="photoPreview" class="photo-preview hidden" alt="찍은 사진">
+  </div>
+
+  <button class="btn photo-btn" id="btnChoosePhoto" onclick="document.getElementById('fileInput').click()">🖼️ 갤러리에서 사진 선택</button>
+  <span class="hint center-hint" id="centerHint">먼저 휴대폰 카메라로 AI 장면을 찍은 뒤, 갤러리에서 골라 주세요!</span>
+  <p class="notice hidden" id="photoNotice"></p>
+
+  <label class="field-label" id="labelDesc">이 장면에는 어떤 AI가 있나요?</label>
+  <textarea class="input" id="descInput" rows="3" placeholder="예) 우리 집 거실 AI 스피커예요. 말로 노래를 틀어 달라고 하면 알아듣고 틀어 줘요."></textarea>
+
+  <button class="btn primary" id="btnPhotoNext" disabled onclick="showScreen('cards')">다음 미션으로 →</button>
+</div>
+
+<!-- ── CARDS ── -->
+<div class="card hidden" id="screenCards">
+  <span class="mission-tag" style="background:#F5A623" id="tagMission2">미션 2</span>
+  <h2 class="h2" id="cardsTitle">어떤 종류의 AI일까? 🃏</h2>
+  <p class="lead" id="cardsLead">내가 찍은 AI와 가장 가까운 카드를 한 장 골라 보세요.</p>
+
+  <div class="mini-review hidden" id="miniReview">
+    <img id="miniThumb" class="mini-thumb" alt="">
+    <span class="mini-desc" id="miniDesc"></span>
+  </div>
+
+  <div class="card-grid" id="aiCardGrid"></div>
+
+  <div class="hidden" id="etcInputWrap">
+    <label class="field-label" id="labelEtc">어떤 AI인지 직접 적어 주세요</label>
+    <input class="input" id="etcInput" placeholder="예) 스마트워치 운동 코치 AI">
+  </div>
+
+  <button class="btn primary" id="btnCardsNext" disabled onclick="showScreen('check')">다음 미션으로 →</button>
+  <button class="btn ghost small" id="btnCardsPrev" onclick="showScreen('photo')">← 이전</button>
+</div>
+
+<!-- ── CHECK ── -->
+<div class="card hidden" id="screenCheck">
+  <span class="mission-tag" style="background:#5CA9F5" id="tagMission3">미션 3</span>
+  <h2 class="h2" id="checkTitle">나의 검증 습관 점검 ✅</h2>
+  <p class="lead" id="checkLeadText"><b id="checkCardName"></b>처럼 AI를 쓸 때, 나는 어떻게 하고 있나요? 솔직하게 골라야 진짜 신호등이 켜져요!</p>
+
+  <div id="checkList"></div>
+
+  <button class="btn primary" id="btnCheckFinish" disabled onclick="finishMission()">신호등 판정 보기 🚦</button>
+  <button class="btn ghost small" id="btnCheckPrev" onclick="showScreen('cards')">← 이전</button>
+</div>
+
+<!-- ── RESULT ── -->
+<div class="card result hidden" id="screenResult">
+  <div class="big-signal">
+    <div class="big-lamp" id="bigLampRed"></div>
+    <div class="big-lamp" id="bigLampYellow"></div>
+    <div class="big-lamp" id="bigLampGreen"></div>
+  </div>
+  <h2 class="h2 center" id="resultTitle"></h2>
+  <p class="score-line" id="resultScore"></p>
+  <p class="lead center" id="resultMsg"></p>
+
+  <div class="result-summary" id="resultSummary"></div>
+  <div class="tips hidden" id="tipsBox"></div>
+
+  <p class="saved-note" id="savedNote"></p>
+  <button class="btn primary" id="btnResultReset" onclick="resetMission()">새로운 AI 찾으러 가기 🔍</button>
+  <button class="btn ghost" id="btnResultHistory" onclick="showScreen('history')">내 미션 기록 보기</button>
+</div>
+
+<!-- ── HISTORY ── -->
+<div class="card hidden" id="screenHistory">
+  <h2 class="h2" id="historyTitle">내 미션 기록 📚</h2>
+  <div id="historyList"></div>
+  <button class="btn primary" id="btnHistoryBack" onclick="historyBack()">← 돌아가기</button>
+</div>
+
+<footer class="foot" id="footerText">OECD · EC AI 리터러시(AILit) 기반 가정 연계 미션</footer>
+
+<script>
+/* ── 데이터 ── */
+const RELATIONS_I18N = {
+  ko: ["학생 (나)", "엄마", "아빠", "형·누나·언니·오빠", "동생", "할머니·할아버지", "그 외 가족"],
+  en: ["Student (Me)", "Mom", "Dad", "Sibling", "Younger Sibling", "Grandparent", "Other Family"]
+};
+
+const AI_CARDS_I18N = {
+  ko: [
+    { id: "voice",  emoji: "🗣️", name: "음성 인식",        desc: "AI 스피커 등" },
+    { id: "drive",  emoji: "🚗", name: "자율 주행/길찾기",   desc: "네비게이션, 자율주행 차 등" },
+    { id: "reco",   emoji: "👍", name: "추천 시스템",        desc: "유튜브, 쇼핑 등" },
+    { id: "vision", emoji: "👁️", name: "이미지/영상 인식",  desc: "로봇청소기 등" },
+    { id: "genai",  emoji: "🎨", name: "생성형 AI",          desc: "챗GPT, 그림 등" },
+    { id: "lang",   emoji: "🌐", name: "번역/언어 처리",     desc: "파파고 등" },
+    { id: "etc",    emoji: "✨", name: "기타",               desc: "직접 입력" },
+  ],
+  en: [
+    { id: "voice",  emoji: "🗣️", name: "Voice Recognition",    desc: "AI speakers, etc." },
+    { id: "drive",  emoji: "🚗", name: "Autonomous/Nav",     desc: "Navigation, self-driving, etc." },
+    { id: "reco",   emoji: "👍", name: "Recommendation",     desc: "YouTube, shopping, etc." },
+    { id: "vision", emoji: "👁️", name: "Image/Video",        desc: "Robot vacuums, etc." },
+    { id: "genai",  emoji: "🎨", name: "Generative AI",      desc: "ChatGPT, AI drawings, etc." },
+    { id: "lang",   emoji: "🌐", name: "Translation/NLP",    desc: "Papago, translation, etc." },
+    { id: "etc",    emoji: "✨", name: "Others",             desc: "Type directly" },
+  ]
+};
+
+const CHECK_ITEMS_I18N = {
+  ko: [
+    { q: "나는 AI가 알려준 내용이 맞는지, 믿을 수 있는 자료(책, 공식 누리집, 어른)로 다시 확인한다.", tag: "사실 확인", tip: "AI의 답을 교과서, 공식 누리집에서 찾아보거나 어른에게 한 번 더 물어봐요." },
+    { q: "나는 AI의 추천(영상, 물건 등)을 그대로 따르기보다, 추천에 없는 다른 선택지도 스스로 찾아본다.", tag: "편향 경계", tip: "추천 목록 바깥에서 다른 영상이나 물건도 직접 검색해 비교해 봐요." },
+    { q: "나는 AI를 사용할 때 내 이름, 얼굴 사진, 집 주소 같은 개인정보를 함부로 입력하지 않는다.", tag: "개인정보", tip: "이름, 얼굴 사진, 집 주소, 전화번호는 AI에게 알려 주지 않기로 약속해요." },
+    { q: "나는 자주 쓰는 앱이나 기기 속에 AI가 숨어 있는지 생각해 보고, 나에게 주는 영향을 떠올려 본다.", tag: "AI 인식", tip: "오늘 쓴 앱에서 AI가 한 일을 한 가지 찾아 가족에게 이야기해 봐요." },
+    { q: "나는 AI가 틀리거나 이상한 답을 하면 그냥 넘기지 않고, 왜 그런지 생각하거나 가족·선생님과 이야기한다.", tag: "오류 대응", tip: "AI가 이상한 답을 하면 \"왜 그럴까?\" 하고 가족과 함께 이유를 찾아봐요." },
+  ],
+  en: [
+    { q: "I check if the content informed by AI is correct using reliable sources (books, official websites, adults).", tag: "Fact Check", tip: "Double-check AI's answers in textbooks, official websites, or ask an adult." },
+    { q: "Rather than blindly following AI recommendations (videos, shopping), I look for other options myself.", tag: "Beware Bias", tip: "Search and compare other videos or items outside the recommended list." },
+    { q: "I do not enter personal information like my name, face photo, or home address when using AI.", tag: "Privacy", tip: "Make it a rule not to share your name, photos, home address, or phone number with AI." },
+    { q: "I think about whether AI is embedded in apps or devices I use daily, and consider its impact on me.", tag: "AI Awareness", tip: "Identify one task AI performed in an app you used today, and share it with family." },
+    { q: "If AI gives an incorrect or strange answer, I don't ignore it; I discuss why it happened with my family/teachers.", tag: "Handle Errors", tip: "If AI gives a weird answer, try to find the reason together with your family." },
+  ]
+};
+
+const SCALE_I18N = {
+  ko: [
+    { label: "항상 그래요", emoji: "😊", score: 2 },
+    { label: "가끔 그래요", emoji: "🙂", score: 1 },
+    { label: "아직 안 해요", emoji: "🌱", score: 0 },
+  ],
+  en: [
+    { label: "Always", emoji: "😊", score: 2 },
+    { label: "Sometimes", emoji: "🙂", score: 1 },
+    { label: "Not yet", emoji: "🌱", score: 0 },
+  ]
+};
+
+const VERDICTS_I18N = {
+  ko: {
+    green:  { color: "#2FBE84", lamp: "🟢", title: "초록불! AI 검증 챔피언",  msg: "AI를 똑똑하게 의심하고 확인하는 습관이 몸에 잘 배어 있어요. AI가 알려 준 것을 그대로 믿지 않고 스스로 검증하는 태도, 정말 멋져요. 가족에게도 검증 방법을 알려 주는 우리 집 AI 안전 지킴이가 되어 보세요!" },
+    yellow: { color: "#F5A623", lamp: "🟡", title: "노란불! 잠깐, 한 번 더 확인", msg: "AI를 잘 쓰고 있지만, 가끔은 확인 없이 그대로 믿을 때가 있어요. AI는 진짜처럼 보이는 틀린 답(환각)을 하거나, 한쪽으로 치우친 추천(편향)을 할 수 있다는 걸 기억해요. 아래 실천 약속부터 시작해 볼까요?" },
+    red:    { color: "#FF6357", lamp: "🔴", title: "빨간불! 멈추고 확인부터",   msg: "지금은 AI의 답을 그대로 믿고 있을 가능성이 커요. AI는 틀린 내용을 자신 있게 말하기도 하고, 내 정보를 가져가기도 해요. 위험하다는 뜻이 아니라, 이제 검증 습관을 시작할 때라는 신호예요. 아래 약속 중 하나만 골라 오늘부터 실천해 봐요!" },
+  },
+  en: {
+    green:  { color: "#2FBE84", lamp: "🟢", title: "Green Light! AI Verification Champion",  msg: "You have a great habit of questioning and checking AI wisely. Your attitude of verifying before believing is outstanding! Try sharing these verification habits as our home's AI safety guardian." },
+    yellow: { color: "#F5A623", lamp: "🟡", title: "Yellow Light! Wait, double-check", msg: "You're using AI well, but sometimes accept its answers without verifying. Remember that AI can give realistic-looking false answers (hallucinations) or biased recommendations. How about starting with the promises below?" },
+    red:    { color: "#FF6357", lamp: "🔴", title: "Red Light! Stop and verify first",   msg: "Currently, you may be blindly trusting AI. AI can confidently tell lies or collect personal information. This is not to say AI is dangerous, but it's a signal to start building verification habits. Pick one promise below to start today!" },
+  }
+};
+
+const STATIC_I18N = {
+  ko: {
+    logoText: "🚦 우리 집 AI 검증 탐험대",
+    homeBtnText: "🏠 홈으로",
+    label0: "찰칵", label1: "고르기", label2: "점검", label3: "신호등",
+    startTitle: "우리 집 AI<br>검증 탐험대",
+    startLead: "집안 곳곳에 숨은 AI를 찾고, 내가 AI를 <b>똑똑하게 검증</b>하며 쓰고 있는지 신호등으로 확인해 봐요!",
+    labelCls: "반",
+    inputClsPlaceholder: "예) 5학년 2반",
+    labelName: "학생 이름",
+    inputNamePlaceholder: "예) 홍길동",
+    labelRelation: "지금 참여하는 사람은?",
+    btnStart: "미션 시작하기 🚀",
+    btnHistory: "내 미션 기록 보기",
+    tagMission1: "미션 1",
+    photoTitle: "AI 활용 장면, 찰칵! 📸",
+    photoLead: "집에서 AI가 쓰이는 장면이나 기기를 찾아 사진으로 찍어 보세요.<br><span class=\"hint\">예) 아빠 차의 내비게이션, 거실 AI 스피커, 로봇청소기</span>",
+    photoEmptyText: "사진을 준비해 주세요",
+    btnChoosePhoto: "🖼️ 갤러리에서 사진 선택",
+    centerHint: "먼저 휴대폰 카메라로 AI 장면을 찍은 뒤, 갤러리에서 골라 주세요!",
+    labelDesc: "이 장면에는 어떤 AI가 있나요?",
+    descInputPlaceholder: "예) 우리 집 거실 AI 스피커예요. 말로 노래를 틀어 달라고 하면 알아듣고 틀어 줘요.",
+    btnPhotoNext: "다음 미션으로 →",
+    tagMission2: "미션 2",
+    cardsTitle: "어떤 종류의 AI일까? 🃏",
+    cardsLead: "내가 찍은 AI와 가장 가까운 카드를 한 장 골라 보세요.",
+    labelEtc: "어떤 AI인지 직접 적어 주세요",
+    etcInputPlaceholder: "예) 스마트워치 운동 코치 AI",
+    btnCardsNext: "다음 미션으로 →",
+    btnCardsPrev: "← 이전",
+    tagMission3: "미션 3",
+    checkTitle: "나의 검증 습관 점검 ✅",
+    btnCheckFinish: "신호등 판정 보기 🚦",
+    btnCheckPrev: "← 이전",
+    btnResultReset: "새로운 AI 찾으러 가기 🔍",
+    btnResultHistory: "내 미션 기록 보기",
+    historyTitle: "내 미션 기록 📚",
+    btnHistoryBack: "← 돌아가기",
+    footerText: "OECD · EC AI 리터러시(AILit) 기반 가정 연계 미션",
+    photoLoading: "사진을 불러오는 중이에요…",
+    photoFail: "사진을 불러오지 못했어요. 갤러리에서 다시 골라 주세요.",
+    savedNoteSaving: "기록을 저장하는 중이에요…",
+    savedNoteDone: "이번 미션이 기록에 저장되었어요 ✔",
+    savedNoteFail: "기록 저장에 실패했어요. 인터넷 연결을 확인해 주세요!",
+    emptyHistory: "<p class='lead'>아직 기록이 없어요. 첫 미션을 시작해 봐요!</p>"
+  },
+  en: {
+    logoText: "🚦 Home AI Expedition",
+    homeBtnText: "🏠 Home",
+    label0: "Photo", label1: "Pick", label2: "Check", label3: "Light",
+    startTitle: "Home AI<br>Expedition",
+    startLead: "Find hidden AI devices at home and check if you are <b>verifying AI wisely</b> using traffic lights!",
+    labelCls: "Class",
+    inputClsPlaceholder: "e.g. Grade 5 Class 2",
+    labelName: "Student Name",
+    inputNamePlaceholder: "e.g. John Doe",
+    labelRelation: "Who is participating now?",
+    btnStart: "Start Mission 🚀",
+    btnHistory: "View My History",
+    tagMission1: "Mission 1",
+    photoTitle: "Snap AI in Action! 📸",
+    photoLead: "Find and photograph an AI device or scene in your home.<br><span class=\"hint\">e.g. navigation in dad's car, living room AI speaker, robot vacuum</span>",
+    photoEmptyText: "Please prepare a photo",
+    btnChoosePhoto: "🖼️ Choose Photo from Gallery",
+    centerHint: "Take a photo of the AI first, then choose it from your gallery!",
+    labelDesc: "What kind of AI is in this scene?",
+    descInputPlaceholder: "e.g. Our living room AI speaker. It plays music when I ask it to.",
+    btnPhotoNext: "Next Mission →",
+    tagMission2: "Mission 2",
+    cardsTitle: "What Kind of AI? 🃏",
+    cardsLead: "Choose the card closest to the AI you snapped.",
+    labelEtc: "Please enter the type of AI",
+    etcInputPlaceholder: "e.g. Smartwatch fitness coach AI",
+    btnCardsNext: "Next Mission →",
+    btnCardsPrev: "← Back",
+    tagMission3: "Mission 3",
+    checkTitle: "Verify Habits Check ✅",
+    btnCheckFinish: "See Traffic Light 🚦",
+    btnCheckPrev: "← Back",
+    btnResultReset: "Find Another AI 🔍",
+    btnResultHistory: "View My History",
+    historyTitle: "My Mission History 📚",
+    btnHistoryBack: "← Back",
+    footerText: "OECD · EC AI Literacy (AILit) based Home-School Connection Mission",
+    photoLoading: "Loading photo...",
+    photoFail: "Failed to load photo. Please choose again.",
+    savedNoteSaving: "Saving record...",
+    savedNoteDone: "This mission has been saved in records ✔",
+    savedNoteFail: "Failed to save record. Please check your internet connection!",
+    emptyHistory: "<p class='lead'>No records yet. Start your first mission!</p>"
+  }
+};
+
+const LAMP_COLORS = ["#FF6357", "#F5A623", "#5CA9F5", "#2FBE84"];
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzb3lA91_whdGFFPj4auB9p3n_LOkyDT8aT2zBWxBP7TbffIIwUolntzyCG-DR7DlrDg/exec";
+
+/* ── 상태 ── */
+let RELATIONS = RELATIONS_I18N.ko;
+let AI_CARDS = AI_CARDS_I18N.ko;
+let CHECK_ITEMS = CHECK_ITEMS_I18N.ko;
+let SCALE = SCALE_I18N.ko;
+let VERDICTS = VERDICTS_I18N.ko;
+
+let profile   = { cls: "", name: "", relation: RELATIONS[0] };
+let photo     = null;
+let desc      = "";
+let cardId    = null;
+let customCard = "";
+let answers   = Array(CHECK_ITEMS.length).fill(null);
+let records   = [];
+let currentScreen = "start";
+
+function getLang() {
+  return localStorage.getItem('combination_lang') || 'ko';
+}
+
+function updateLanguageGlobals(lang) {
+  RELATIONS = RELATIONS_I18N[lang];
+  AI_CARDS = AI_CARDS_I18N[lang];
+  CHECK_ITEMS = CHECK_ITEMS_I18N[lang];
+  SCALE = SCALE_I18N[lang];
+  VERDICTS = VERDICTS_I18N[lang];
+}
+
+function applyLanguage() {
+  const lang = getLang();
+  updateLanguageGlobals(lang);
+
+  document.title = lang === 'en' ? "🚦 Home AI Expedition" : "🚦 우리 집 AI 검증 탐험대";
+
+  // Apply static UI text
+  const i18n = STATIC_I18N[lang];
+  document.getElementById('logoText').innerHTML = i18n.logoText;
+  document.getElementById('homeBtnText').textContent = i18n.homeBtnText;
+  document.getElementById('label0').textContent = i18n.label0;
+  document.getElementById('label1').textContent = i18n.label1;
+  document.getElementById('label2').textContent = i18n.label2;
+  document.getElementById('label3').textContent = i18n.label3;
+
+  document.getElementById('startTitle').innerHTML = i18n.startTitle;
+  document.getElementById('startLead').innerHTML = i18n.startLead;
+  document.getElementById('labelCls').textContent = i18n.labelCls;
+  document.getElementById('inputCls').setAttribute('placeholder', i18n.inputClsPlaceholder);
+  document.getElementById('labelName').textContent = i18n.labelName;
+  document.getElementById('inputName').setAttribute('placeholder', i18n.inputNamePlaceholder);
+  document.getElementById('labelRelation').textContent = i18n.labelRelation;
+  document.getElementById('btnStart').textContent = i18n.btnStart;
+  
+  document.getElementById('tagMission1').textContent = i18n.tagMission1;
+  document.getElementById('photoTitle').textContent = i18n.photoTitle;
+  document.getElementById('photoLead').innerHTML = i18n.photoLead;
+  document.getElementById('photoEmptyText').textContent = i18n.photoEmptyText;
+  document.getElementById('btnChoosePhoto').textContent = i18n.btnChoosePhoto;
+  document.getElementById('centerHint').textContent = i18n.centerHint;
+  document.getElementById('labelDesc').textContent = i18n.labelDesc;
+  document.getElementById('descInput').setAttribute('placeholder', i18n.descInputPlaceholder);
+  document.getElementById('btnPhotoNext').textContent = i18n.btnPhotoNext;
+
+  document.getElementById('tagMission2').textContent = i18n.tagMission2;
+  document.getElementById('cardsTitle').textContent = i18n.cardsTitle;
+  document.getElementById('cardsLead').textContent = i18n.cardsLead;
+  document.getElementById('labelEtc').textContent = i18n.labelEtc;
+  document.getElementById('etcInput').setAttribute('placeholder', i18n.etcInputPlaceholder);
+  document.getElementById('btnCardsNext').textContent = i18n.btnCardsNext;
+  document.getElementById('btnCardsPrev').textContent = i18n.btnCardsPrev;
+
+  document.getElementById('tagMission3').textContent = i18n.tagMission3;
+  document.getElementById('checkTitle').textContent = i18n.checkTitle;
+  document.getElementById('btnCheckFinish').textContent = i18n.btnCheckFinish;
+  document.getElementById('btnCheckPrev').textContent = i18n.btnCheckPrev;
+
+  document.getElementById('btnResultReset').textContent = i18n.btnResultReset;
+  document.getElementById('btnResultHistory').textContent = i18n.btnResultHistory;
+
+  document.getElementById('historyTitle').textContent = i18n.historyTitle;
+  document.getElementById('btnHistoryBack').textContent = i18n.btnHistoryBack;
+  document.getElementById('footerText').textContent = i18n.footerText;
+
+  // Re-render relation chips with profile.relation translated if possible
+  renderRelationChips();
+
+  // Re-render AI Cards and check list
+  renderAiCards();
+  renderCheckList();
+  updateCheckLead();
+  
+  // Re-render history if active
+  if (currentScreen === 'history') {
+    renderHistory();
+  }
+
+  // Update button active state
+  document.querySelectorAll('.lang-btn-sub').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+}
+
+function renderRelationChips() {
+  const chips = document.getElementById("relationChips");
+  chips.innerHTML = RELATIONS.map(r =>
+    `<button class="chip${profile.relation === r ? ' sel' : ''}" onclick="selectRelation('${r}')">${r}</button>`
+  ).join("");
+}
+
+function updateCheckLead() {
+  const lang = getLang();
+  const cn = getCardName() || (lang === 'en' ? 'AI' : 'AI');
+  const leadEl = document.getElementById("checkLeadText");
+  if (lang === 'en') {
+    leadEl.innerHTML = `When using AI like <b id="checkCardName">${cn}</b>, how do you behave? Answer honestly for the real traffic light!`;
+  } else {
+    leadEl.innerHTML = `<b id="checkCardName">${cn}</b>처럼 AI를 쓸 때, 나는 어떻게 하고 있나요? 솔직하게 골라야 진짜 신호등이 켜져요!`;
+  }
+}
+
+/* ── 초기화 ── */
+function init() {
+  // localStorage에서 저장된 데이터 불러오기
+  try {
+    const p = localStorage.getItem("sail-home-profile");
+    if (p) profile = JSON.parse(p);
+  } catch {}
+  try {
+    const r = localStorage.getItem("sail-home-records");
+    if (r) records = JSON.parse(r);
+  } catch {}
+
+  // Set default relation based on default RELATIONS
+  const savedLang = getLang();
+  updateLanguageGlobals(savedLang);
+  if (!profile.relation) {
+    profile.relation = RELATIONS[0];
+  } else {
+    // If language is English but saved relation is in Korean, translate it
+    const indexInKo = RELATIONS_I18N.ko.indexOf(profile.relation);
+    if (indexInKo !== -1) {
+      profile.relation = RELATIONS[indexInKo];
+    }
+  }
+
+  // 입력값 복원
+  document.getElementById("inputCls").value  = profile.cls  || "";
+  document.getElementById("inputName").value = profile.name || "";
+
+  // 입력 이벤트
+  document.getElementById("inputCls").addEventListener("input",  e => { profile.cls  = e.target.value; updateStartBtn(); });
+  document.getElementById("inputName").addEventListener("input", e => { profile.name = e.target.value; updateStartBtn(); });
+  document.getElementById("descInput").addEventListener("input", e => { desc = e.target.value; updatePhotoNext(); });
+  document.getElementById("etcInput").addEventListener("input",  e => { customCard = e.target.value; updateCardsNext(); });
+
+  updateStartBtn();
+  updateHistoryBtn();
+  applyLanguage();
+}
+
+/* ── 화면 전환 ── */
+const SCREENS = ["start","photo","cards","check","result","history"];
+const STEP_MAP = { photo: 0, cards: 1, check: 2, result: 3 };
+
+function showScreen(name) {
+  currentScreen = name;
+  SCREENS.forEach(s => document.getElementById("screen" + s.charAt(0).toUpperCase() + s.slice(1)).classList.add("hidden"));
+  document.getElementById("screen" + name.charAt(0).toUpperCase() + name.slice(1)).classList.remove("hidden");
+
+  const stepIdx = STEP_MAP[name];
+  const bar = document.getElementById("signalBar");
+  if (stepIdx != null) {
+    bar.classList.remove("hidden");
+    for (let i = 0; i < 4; i++) {
+      const lamp  = document.getElementById("lamp" + i);
+      const label = document.getElementById("label" + i);
+      if (i <= stepIdx) {
+        lamp.style.background = LAMP_COLORS[i];
+        lamp.style.borderColor = "#1B3140";
+        lamp.textContent = ["📸","🃏","✅","🚦"][i];
+        lamp.classList.add("on");
+        label.classList.add("on");
+      } else {
+        lamp.style.background = "";
+        lamp.style.borderColor = "";
+        lamp.textContent = "";
+        lamp.classList.remove("on");
+        label.classList.remove("on");
+      }
+    }
+  } else {
+    bar.classList.add("hidden");
+  }
+
+  // 화면별 준비 작업
+  if (name === "cards") {
+    const mr = document.getElementById("miniReview");
+    if (photo) {
+      document.getElementById("miniThumb").src = photo;
+      document.getElementById("miniDesc").textContent = desc;
+      mr.classList.remove("hidden");
+    } else {
+      mr.classList.add("hidden");
+    }
+  }
+  if (name === "check") {
+    const cn = getCardName();
+    document.getElementById("checkCardName").textContent = cn;
+  }
+  if (name === "history") {
+    renderHistory();
+  }
+
+  // 프로필 태그
+  const whoTag = document.getElementById("whoTag");
+  if (profile.name && name !== "start") {
+    whoTag.textContent = profile.cls + " " + profile.name;
+    whoTag.classList.remove("hidden");
+  } else {
+    whoTag.classList.add("hidden");
+  }
+
+  window.scrollTo(0, 0);
+}
+
+/* ── Start ── */
+function selectRelation(r) {
+  profile.relation = r;
+  document.querySelectorAll(".chip").forEach(c => {
+    c.classList.toggle("sel", c.textContent === r);
+  });
+}
+function updateStartBtn() {
+  document.getElementById("btnStart").disabled = !(profile.cls.trim() && profile.name.trim());
+}
+function updateHistoryBtn() {
+  const btn = document.getElementById("btnHistory");
+  if (records.length > 0) {
+    btn.classList.remove("hidden");
+    btn.textContent = "내 미션 기록 보기 (" + records.length + ")";
+  } else {
+    btn.classList.add("hidden");
+  }
+}
+function startMission() {
+  try { localStorage.setItem("sail-home-profile", JSON.stringify(profile)); } catch {}
+  showScreen("photo");
+}
+
+/* ── Photo ── */
+const resizeImage = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("파일을 읽지 못했어요"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const max = 560;
+          const s = Math.min(1, max / Math.max(img.width, img.height));
+          const c = document.createElement("canvas");
+          c.width  = Math.max(1, Math.round(img.width  * s));
+          c.height = Math.max(1, Math.round(img.height * s));
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL("image/jpeg", 0.65));
+        } catch { resolve(reader.result); }
+      };
+      img.onerror = () => reject(new Error("이미지를 열지 못했어요"));
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+async function onPickPhoto(e) {
+  const f = e.target.files?.[0];
+  e.target.value = "";
+  if (!f) return;
+  const notice = document.getElementById("photoNotice");
+  notice.textContent = "사진을 불러오는 중이에요…";
+  notice.classList.remove("hidden");
+  try {
+    photo = await resizeImage(f);
+    document.getElementById("photoEmpty").classList.add("hidden");
+    const prev = document.getElementById("photoPreview");
+    prev.src = photo;
+    prev.classList.remove("hidden");
+    document.getElementById("photoDrop").classList.add("has");
+    notice.classList.add("hidden");
+  } catch {
+    notice.textContent = "사진을 불러오지 못했어요. 갤러리에서 다시 골라 주세요.";
+  }
+  updatePhotoNext();
+}
+function updatePhotoNext() {
+  document.getElementById("btnPhotoNext").disabled = !(photo && desc.trim());
+}
+
+/* ── AI Cards ── */
+function renderAiCards() {
+  const grid = document.getElementById("aiCardGrid");
+  grid.innerHTML = AI_CARDS.map(c =>
+    `<button class="ai-card${cardId === c.id ? ' sel' : ''}" onclick="selectCard('${c.id}')">
+      <span class="ai-emoji">${c.emoji}</span>
+      <span class="ai-name">${c.name}</span>
+      <span class="ai-desc">${c.desc}</span>
+    </button>`
+  ).join("");
+}
+function selectCard(id) {
+  cardId = id;
+  renderAiCards();
+  const wrap = document.getElementById("etcInputWrap");
+  if (id === "etc") { wrap.classList.remove("hidden"); } else { wrap.classList.add("hidden"); }
+  updateCardsNext();
+}
+function updateCardsNext() {
+  document.getElementById("btnCardsNext").disabled = !cardId || (cardId === "etc" && !customCard.trim());
+}
+function getCardName() {
+  if (!cardId) return "";
+  if (cardId === "etc") return customCard || (getLang() === 'en' ? "Other AI" : "기타 AI");
+  return AI_CARDS.find(c => c.id === cardId)?.name || "";
+}
+
+/* ── Check ── */
+function renderCheckList() {
+  const list = document.getElementById("checkList");
+  list.innerHTML = CHECK_ITEMS.map((item, i) =>
+    `<div class="check-item">
+      <div class="check-head">
+        <span class="check-tag">${item.tag}</span>
+        <p class="check-q">${item.q}</p>
+      </div>
+      <div class="scale-row">
+        ${SCALE.map(s =>
+          `<button class="scale-btn${answers[i] === s.score ? ' sel' : ''}" onclick="setAnswer(${i}, ${s.score})">
+            <span class="s-emoji">${s.emoji}</span>${s.label}
+          </button>`
+        ).join("")}
+      </div>
+    </div>`
+  ).join("");
+}
+function setAnswer(i, score) {
+  answers[i] = score;
+  renderCheckList();
+  document.getElementById("btnCheckFinish").disabled = answers.some(a => a === null);
+}
+
+/* ── Result ── */
+function getVerdict(score) { return score >= 8 ? "green" : score >= 4 ? "yellow" : "red"; }
+
+async function finishMission() {
+  const score = answers.reduce((a, v) => a + (v ?? 0), 0);
+  const verdictKey = getVerdict(score);
+  const verdict = VERDICTS[verdictKey];
+  const cardName = getCardName();
+  const lang = getLang();
+
+  showScreen("result");
+
+  // 신호등 표시
+  document.getElementById("screenResult").style.borderColor = verdict.color;
+  ["Red","Yellow","Green"].forEach(k => {
+    const el = document.getElementById("bigLamp" + k);
+    const key = k.toLowerCase();
+    if (verdictKey === key) {
+      el.style.background = VERDICTS_I18N['ko'][key].color;
+      el.classList.add("lit");
+    } else {
+      el.style.background = "";
+      el.classList.remove("lit");
+    }
+  });
+
+  document.getElementById("resultTitle").textContent = verdict.title;
+  document.getElementById("resultTitle").style.color = verdict.color;
+  if (lang === 'en') {
+    document.getElementById("resultScore").innerHTML = `Verification Score: <b>${score}</b> / ${CHECK_ITEMS.length * 2} pts`;
+  } else {
+    document.getElementById("resultScore").innerHTML = `검증 점수 <b>${score}</b> / ${CHECK_ITEMS.length * 2}점`;
+  }
+  document.getElementById("resultMsg").textContent = verdict.msg;
+
+  // 요약
+  const summary = document.getElementById("resultSummary");
+  if (lang === 'en') {
+    summary.innerHTML = (photo ? `<img src="${photo}" class="result-thumb" alt="">` : "") +
+      `<div>
+        <p class="rs-line"><b>${profile.cls} ${profile.name}</b> · ${profile.relation}</p>
+        <p class="rs-line">Found AI: <b>${cardName}</b></p>
+        <p class="rs-line rs-desc">${desc}</p>
+      </div>`;
+  } else {
+    summary.innerHTML = (photo ? `<img src="${photo}" class="result-thumb" alt="">` : "") +
+      `<div>
+        <p class="rs-line"><b>${profile.cls} ${profile.name}</b> · ${profile.relation}</p>
+        <p class="rs-line">발견한 AI: <b>${cardName}</b></p>
+        <p class="rs-line rs-desc">${desc}</p>
+      </div>`;
+  }
+
+  // 팁
+  const weakTips  = CHECK_ITEMS.filter((_, i) => answers[i] === 0);
+  const growTips  = weakTips.length ? weakTips : CHECK_ITEMS.filter((_, i) => answers[i] === 1);
+  const tipsBox = document.getElementById("tipsBox");
+  if (growTips.length > 0) {
+    tipsBox.innerHTML = `<p class="tips-title">${STATIC_I18N[lang].practiceTitle}</p>` +
+      growTips.slice(0, 3).map(t =>
+        `<p class="tip-line"><span class="check-tag">${t.tag}</span>${t.tip}</p>`
+      ).join("");
+    tipsBox.classList.remove("hidden");
+  } else {
+    tipsBox.classList.add("hidden");
+  }
+
+  const savedNote = document.getElementById("savedNote");
+  savedNote.textContent = STATIC_I18N[lang].photoLoading;
+
+  // 로컬 저장
+  // Keep Google Sheet / Local storage data tags uniform (in Korean relation and card name for consistency)
+  const relIndex = RELATIONS_I18N[lang].indexOf(profile.relation);
+  const relationKo = relIndex !== -1 ? RELATIONS_I18N.ko[relIndex] : profile.relation;
+  const cardIndex = AI_CARDS_I18N[lang].findIndex(c => c.id === cardId);
+  const cardKo = cardIndex !== -1 ? AI_CARDS_I18N.ko[cardIndex].name : (cardId === "etc" ? customCard : "기타");
+
+  const rec = {
+    when: new Date().toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }),
+    profile: { ...profile, relation: relationKo }, photo, desc, card: cardKo, score, verdict: verdictKey,
+  };
+  const next = [rec, ...records].slice(0, 10);
+  records = next;
+  try { localStorage.setItem("sail-home-records", JSON.stringify(next)); } catch {}
+  updateHistoryBtn();
+
+  // 구글 시트 전송
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(rec),
+    });
+    savedNote.textContent = STATIC_I18N[lang].savedNoteDone;
+  } catch {
+    savedNote.textContent = STATIC_I18N[lang].savedNoteFail;
+  }
+}
+
+function resetMission() {
+  photo = null; desc = ""; cardId = null; customCard = "";
+  answers = Array(CHECK_ITEMS.length).fill(null);
+  document.getElementById("photoEmpty").classList.remove("hidden");
+  document.getElementById("photoPreview").classList.add("hidden");
+  document.getElementById("photoPreview").src = "";
+  document.getElementById("photoDrop").classList.remove("has");
+  document.getElementById("descInput").value = "";
+  document.getElementById("etcInput").value = "";
+  document.getElementById("etcInputWrap").classList.add("hidden");
+  renderAiCards();
+  renderCheckList();
+  updatePhotoNext();
+  document.getElementById("btnCheckFinish").disabled = true;
+  showScreen("photo");
+}
+
+/* ── History ── */
+function renderHistory() {
+  const lang = getLang();
+  const list = document.getElementById("historyList");
+  if (records.length === 0) {
+    list.innerHTML = STATIC_I18N[lang].emptyHistory;
+    return;
+  }
+  list.innerHTML = records.map((r, i) => {
+    // Translate data back to active UI language for display
+    const relIndex = RELATIONS_I18N.ko.indexOf(r.profile.relation);
+    const relLabel = relIndex !== -1 ? RELATIONS_I18N[lang][relIndex] : r.profile.relation;
+
+    const cardIndex = AI_CARDS_I18N.ko.findIndex(c => c.name === r.card);
+    const cardLabel = cardIndex !== -1 ? AI_CARDS_I18N[lang][cardIndex].name : r.card;
+
+    return `<div class="history-item">
+      ${r.photo ? `<img src="${r.photo}" class="mini-thumb" alt="">` : ""}
+      <div class="history-body">
+        <p class="rs-line"><b>${cardLabel}</b> <span class="hist-when">${r.when}</span></p>
+        <p class="rs-line rs-desc">${r.desc}</p>
+        <p class="rs-line">${VERDICTS_I18N[lang][r.verdict].lamp} ${r.score}${lang === 'en' ? ' pts' : '점'} · ${r.profile.name}(${relLabel})</p>
+      </div>
+    </div>`;
+  }).join("");
+}
+function historyBack() {
+  showScreen(photo ? "result" : "start");
+}
+
+/* ── 시작 ── */
+init();
+
+// 언어 선택 기능 추가
+document.querySelectorAll('.lang-btn-sub').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const oldLang = getLang();
+    const newLang = btn.dataset.lang;
+    
+    // Translate active relation state to avoid resetting chips
+    const index = RELATIONS_I18N[oldLang].indexOf(profile.relation);
+    if (index !== -1) {
+      profile.relation = RELATIONS_I18N[newLang][index];
+    }
+    
+    localStorage.setItem('combination_lang', newLang);
+    applyLanguage();
+  });
+});
+
+// localStorage 값에 따라 초기화
+const savedLang = localStorage.getItem('combination_lang') || 'ko';
+const activeBtn = document.querySelector(`.lang-btn-sub[data-lang="${savedLang}"]`);
+if (activeBtn) {
+  document.querySelectorAll('.lang-btn-sub').forEach(b => b.classList.remove('active'));
+  activeBtn.classList.add('active');
+}
+applyLanguage();
+</script>
+</body>
+</html>
