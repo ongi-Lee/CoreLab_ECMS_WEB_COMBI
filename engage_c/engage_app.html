@@ -273,8 +273,19 @@
   <h1 class="title" id="startTitle">우리 집 AI<br>검증 탐험대</h1>
   <p class="lead" id="startLead">집안 곳곳에 숨은 AI를 찾고, 내가 AI를 <b>똑똑하게 검증</b>하며 쓰고 있는지 신호등으로 확인해 봐요!</p>
 
-  <label class="field-label" id="labelCls">반</label>
-  <input class="input" id="inputCls" placeholder="예) 5학년 2반">
+  <label class="field-label" id="labelSchool">학교 이름</label>
+  <input class="input" id="inputSchool" placeholder="예) 서울초등학교">
+
+  <div style="display: flex; gap: 10px;">
+    <div style="flex: 1;">
+      <label class="field-label" id="labelGrade">학년</label>
+      <input class="input" id="inputGrade" placeholder="예) 5학년">
+    </div>
+    <div style="flex: 1;">
+      <label class="field-label" id="labelCls">반</label>
+      <input class="input" id="inputCls" placeholder="예) 2반">
+    </div>
+  </div>
 
   <label class="field-label" id="labelName">학생 이름</label>
   <input class="input" id="inputName" placeholder="예) 홍길동">
@@ -454,8 +465,12 @@ const STATIC_I18N = {
     label0: "찰칵", label1: "고르기", label2: "점검", label3: "신호등",
     startTitle: "우리 집 AI<br>검증 탐험대",
     startLead: "집안 곳곳에 숨은 AI를 찾고, 내가 AI를 <b>똑똑하게 검증</b>하며 쓰고 있는지 신호등으로 확인해 봐요!",
+    labelSchool: "학교 이름",
+    inputSchoolPlaceholder: "예) 서울초등학교",
+    labelGrade: "학년",
+    inputGradePlaceholder: "예) 5학년",
     labelCls: "반",
-    inputClsPlaceholder: "예) 5학년 2반",
+    inputClsPlaceholder: "예) 2반",
     labelName: "학생 이름",
     inputNamePlaceholder: "예) 홍길동",
     labelRelation: "지금 참여하는 사람은?",
@@ -499,8 +514,12 @@ const STATIC_I18N = {
     label0: "Photo", label1: "Pick", label2: "Check", label3: "Light",
     startTitle: "Home AI<br>Expedition",
     startLead: "Find hidden AI devices at home and check if you are <b>verifying AI wisely</b> using traffic lights!",
+    labelSchool: "School Name",
+    inputSchoolPlaceholder: "e.g. Seoul Elementary School",
+    labelGrade: "Grade",
+    inputGradePlaceholder: "e.g. Grade 5",
     labelCls: "Class",
-    inputClsPlaceholder: "e.g. Grade 5 Class 2",
+    inputClsPlaceholder: "e.g. Class 2",
     labelName: "Student Name",
     inputNamePlaceholder: "e.g. John Doe",
     labelRelation: "Who is participating now?",
@@ -550,7 +569,7 @@ let CHECK_ITEMS = CHECK_ITEMS_I18N.ko;
 let SCALE = SCALE_I18N.ko;
 let VERDICTS = VERDICTS_I18N.ko;
 
-let profile   = { cls: "", name: "", relation: RELATIONS[0] };
+let profile   = { school: "", grade: "", cls: "", name: "", relation: RELATIONS[0] };
 let photo     = null;
 let desc      = "";
 let cardId    = null;
@@ -588,6 +607,10 @@ function applyLanguage() {
 
   document.getElementById('startTitle').innerHTML = i18n.startTitle;
   document.getElementById('startLead').innerHTML = i18n.startLead;
+  document.getElementById('labelSchool').textContent = i18n.labelSchool;
+  document.getElementById('inputSchool').setAttribute('placeholder', i18n.inputSchoolPlaceholder);
+  document.getElementById('labelGrade').textContent = i18n.labelGrade;
+  document.getElementById('inputGrade').setAttribute('placeholder', i18n.inputGradePlaceholder);
   document.getElementById('labelCls').textContent = i18n.labelCls;
   document.getElementById('inputCls').setAttribute('placeholder', i18n.inputClsPlaceholder);
   document.getElementById('labelName').textContent = i18n.labelName;
@@ -688,12 +711,16 @@ function init() {
   }
 
   // 입력값 복원
-  document.getElementById("inputCls").value  = profile.cls  || "";
-  document.getElementById("inputName").value = profile.name || "";
+  document.getElementById("inputSchool").value = profile.school || "";
+  document.getElementById("inputGrade").value  = profile.grade  || "";
+  document.getElementById("inputCls").value    = profile.cls    || "";
+  document.getElementById("inputName").value   = profile.name   || "";
 
   // 입력 이벤트
-  document.getElementById("inputCls").addEventListener("input",  e => { profile.cls  = e.target.value; updateStartBtn(); });
-  document.getElementById("inputName").addEventListener("input", e => { profile.name = e.target.value; updateStartBtn(); });
+  document.getElementById("inputSchool").addEventListener("input", e => { profile.school = e.target.value; updateStartBtn(); });
+  document.getElementById("inputGrade").addEventListener("input",  e => { profile.grade  = e.target.value; updateStartBtn(); });
+  document.getElementById("inputCls").addEventListener("input",    e => { profile.cls    = e.target.value; updateStartBtn(); });
+  document.getElementById("inputName").addEventListener("input",   e => { profile.name   = e.target.value; updateStartBtn(); });
   document.getElementById("descInput").addEventListener("input", e => { desc = e.target.value; updatePhotoNext(); });
   document.getElementById("etcInput").addEventListener("input",  e => { customCard = e.target.value; updateCardsNext(); });
 
@@ -758,7 +785,8 @@ function showScreen(name) {
   // 프로필 태그
   const whoTag = document.getElementById("whoTag");
   if (profile.name && name !== "start") {
-    whoTag.textContent = profile.cls + " " + profile.name;
+    const studentInfo = [profile.school, profile.grade, profile.cls, profile.name].filter(Boolean).join(" ");
+    whoTag.textContent = studentInfo;
     whoTag.classList.remove("hidden");
   } else {
     whoTag.classList.add("hidden");
@@ -775,7 +803,7 @@ function selectRelation(r) {
   });
 }
 function updateStartBtn() {
-  document.getElementById("btnStart").disabled = !(profile.cls.trim() && profile.name.trim());
+  document.getElementById("btnStart").disabled = !(profile.name.trim() && profile.cls.trim());
 }
 function updateHistoryBtn() {
   const btn = document.getElementById("btnHistory");
@@ -928,17 +956,18 @@ async function finishMission() {
 
   // 요약
   const summary = document.getElementById("resultSummary");
+  const studentInfo = [profile.school, profile.grade, profile.cls, profile.name].filter(Boolean).join(" ");
   if (lang === 'en') {
     summary.innerHTML = (photo ? `<img src="${photo}" class="result-thumb" alt="">` : "") +
       `<div>
-        <p class="rs-line"><b>${profile.cls} ${profile.name}</b> · ${profile.relation}</p>
+        <p class="rs-line"><b>${studentInfo}</b> · ${profile.relation}</p>
         <p class="rs-line">Found AI: <b>${cardName}</b></p>
         <p class="rs-line rs-desc">${desc}</p>
       </div>`;
   } else {
     summary.innerHTML = (photo ? `<img src="${photo}" class="result-thumb" alt="">` : "") +
       `<div>
-        <p class="rs-line"><b>${profile.cls} ${profile.name}</b> · ${profile.relation}</p>
+        <p class="rs-line"><b>${studentInfo}</b> · ${profile.relation}</p>
         <p class="rs-line">발견한 AI: <b>${cardName}</b></p>
         <p class="rs-line rs-desc">${desc}</p>
       </div>`;
