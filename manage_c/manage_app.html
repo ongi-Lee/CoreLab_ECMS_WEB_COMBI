@@ -111,7 +111,9 @@
     .btn-light{background:#eef2ff;color:#26357a;}
     .hidden{display:none!important;}
     .rule{
-      border-radius:20px;padding:18px 20px;line-height:1.55;transition:all 0.2s ease;
+      border-radius:20px;padding:18px 20px;line-height:1.6;
+      display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+      word-break:keep-all;transition:all 0.2s ease;
     }
     #ruleA{
       background:linear-gradient(135deg,#eff6ff 0%,#e0e7ff 100%);
@@ -122,10 +124,12 @@
       border:2px solid #fde047;color:#78350f;
     }
     .rule strong{
-      display:inline-block;margin-bottom:6px;font-size:1.15rem;font-weight:900;padding:4px 12px;border-radius:12px;
+      display:inline-flex;align-items:center;gap:6px;font-size:1.1rem;font-weight:900;
+      padding:5px 14px;border-radius:999px;margin:0;
     }
     #ruleA strong{background:#2563eb;color:#ffffff;}
     #ruleB strong{background:#d97706;color:#ffffff;}
+    .rule span{font-size:1.02rem;font-weight:700;line-height:1.5;}
     .small-note{color:#64748b;font-size:.9rem;line-height:1.55;}
     .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:#475569;font-weight:800;gap:10px;flex-wrap:wrap;}
     .bar{width:100%;height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;}
@@ -137,7 +141,7 @@
     .situation{font-size:1.28rem;line-height:1.7;font-weight:900;letter-spacing:-.02em;margin:10px 0 0;}
     .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px;}
     .choice{
-      border-radius:24px;padding:22px 16px;text-align:center;cursor:pointer;min-height:140px;
+      border-radius:24px;padding:22px 16px;text-align:center;cursor:pointer;min-height:148px;
       display:flex;flex-direction:column;justify-content:center;align-items:center;transition:all 0.2s ease;
       user-select:none;position:relative;
     }
@@ -161,8 +165,18 @@
       background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-color:#b45309;border-width:4px;color:#78350f;
       transform:scale(1.03);box-shadow:0 12px 28px rgba(180,83,9,0.35);
     }
-    .choice .emoji{font-size:2.6rem;margin-bottom:10px;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1));}
-    .choice .label{font-size:1.15rem;font-weight:900;line-height:1.45;}
+    .choice .emoji{font-size:2.6rem;margin-bottom:8px;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1));}
+    .choice .label{
+      width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;word-break:keep-all;
+    }
+    .choice .choice-title{
+      font-size:1.18rem;font-weight:1000;letter-spacing:-0.01em;padding:3px 14px;border-radius:999px;display:inline-block;
+    }
+    #choiceA .choice-title{background:rgba(37,99,235,0.12);color:#1d4ed8;}
+    #choiceA.selected-a .choice-title{background:#1d4ed8;color:#ffffff;}
+    #choiceB .choice-title{background:rgba(217,119,6,0.14);color:#b45309;}
+    #choiceB.selected-b .choice-title{background:#b45309;color:#ffffff;}
+    .choice .choice-desc{font-size:1.05rem;font-weight:800;line-height:1.4;}
     .feedback{margin-top:18px;border-radius:22px;padding:18px;border:2px solid #e5e7eb;display:none;animation:pop .2s ease;}
     .feedback.show{display:block;}
     .feedback.green{border-color:#bbf7d0;background:#f0fdf4;}
@@ -209,8 +223,8 @@
     <p id="startDesc">주어지는 상황을 읽고, 각 상황에 따라 A선택과 B선택 중 올바른 판단을 내리는 미션이에요.</p>
 
     <div class="grid2">
-      <div class="rule" id="ruleA"><strong>🤖 A 선택</strong>AI에게 도움을 받아도 좋은 상황이에요.</div>
-      <div class="rule" id="ruleB"><strong>🧑 B 선택</strong>사람이 직접 판단하고 책임져야 하는 상황이에요.</div>
+      <div class="rule" id="ruleA"><strong>🤖 A 선택</strong><span>AI에게 도움을 받아도 좋은 상황이에요.</span></div>
+      <div class="rule" id="ruleB"><strong>🧑 B 선택</strong><span>사람이 직접 판단하고 책임져야 하는 상황이에요.</span></div>
     </div>
 
     <h3 id="studentInfoTitle">학생 정보</h3>
@@ -244,8 +258,8 @@
     </div>
 
     <div class="choices">
-      <div id="choiceA" class="choice" onclick="selectChoice('A')"><div class="emoji">🤖</div><div class="label" id="labelChoiceA">A. AI에게<br>도움받아도 좋아!</div></div>
-      <div id="choiceB" class="choice" onclick="selectChoice('B')"><div class="emoji">🧑</div><div class="label" id="labelChoiceB">B. 사람이 직접<br>판단해야 해!</div></div>
+      <div id="choiceA" class="choice" onclick="selectChoice('A')"><div class="emoji">🤖</div><div class="label" id="labelChoiceA"><span class="choice-title">A. AI에게</span><span class="choice-desc">도움받아도 좋아!</span></div></div>
+      <div id="choiceB" class="choice" onclick="selectChoice('B')"><div class="emoji">🧑</div><div class="label" id="labelChoiceB"><span class="choice-title">B. 사람이 직접</span><span class="choice-desc">판단해야 해!</span></div></div>
     </div>
 
     <button id="checkButton" class="btn-main" onclick="checkAnswer()" disabled>✅ 선택 확인</button>
