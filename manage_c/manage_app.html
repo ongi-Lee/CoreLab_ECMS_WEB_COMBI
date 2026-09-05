@@ -105,6 +105,7 @@
       font-weight:900;cursor:pointer;transition:.08s ease;
     }
     button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(31,41,55,.12);}
+    button:disabled{opacity:0.45;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
     .btn-main{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--main),var(--main2));color:white;}
     .btn-next{width:100%;background:linear-gradient(135deg,#111827,#374151);color:white;margin-top:14px;}
     .btn-light{background:#eef2ff;color:#26357a;}
@@ -203,7 +204,7 @@
       </div>
     </div>
 
-    <button class="btn-main" id="btnStartGame" onclick="startGame()">🚀 랜덤 미션 시작하기</button>
+    <button class="btn-main" id="btnStartGame" onclick="startGame()" disabled>🚀 랜덤 미션 시작하기</button>
   </section>
 
   <section id="gameScreen" class="card hidden">
