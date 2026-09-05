@@ -32,11 +32,17 @@ const GRID_TRANS = {
 const STATIC_I18N = {
   ko: {
     loginTitle: "🎨 말랑말랑 AI 그림 책방",
-    loginSub: "재미있는 AI 그림 나라로 들어가기 위해<br>선생님이 주신 아이디와 비밀번호를 입력해요! ✨",
-    labelLoginId: "아이디",
-    loginIdPlaceholder: "아이디를 입력하세요 (예: TEST_01)",
-    labelLoginPw: "비밀번호",
-    loginPwPlaceholder: "비밀번호를 입력하세요",
+    loginSub: "재미있는 AI 그림 책방에 들어가기 위해<br>학생 정보를 먼저 입력해 주세요! ✨",
+    labelSchool: "학교 이름",
+    schoolPlaceholder: "예: 서울초등학교",
+    labelGrade: "학년",
+    gradePlaceholder: "예: 6",
+    labelClass: "반",
+    classPlaceholder: "예: 1",
+    labelNumber: "번호",
+    numberPlaceholder: "예: 12",
+    labelStudentName: "학생 이름",
+    studentNamePlaceholder: "예: 홍길동",
     loginBtn: "🚪 책방 들어가기!",
     
     mainTitle: "🎨 말랑말랑 AI 그림 책방",
@@ -121,11 +127,17 @@ const STATIC_I18N = {
   },
   en: {
     loginTitle: "🎨 AI Picture Bookstore",
-    loginSub: "To enter the fun AI picture world,<br>please enter the ID and password given by your teacher! ✨",
-    labelLoginId: "ID",
-    loginIdPlaceholder: "Enter ID (e.g. TEST_01)",
-    labelLoginPw: "Password",
-    loginPwPlaceholder: "Enter password",
+    loginSub: "Please enter your student info<br>before entering the AI Picture Bookstore! ✨",
+    labelSchool: "School Name",
+    schoolPlaceholder: "e.g. Seoul Elementary School",
+    labelGrade: "Grade",
+    gradePlaceholder: "e.g. 6",
+    labelClass: "Class",
+    classPlaceholder: "e.g. 1",
+    labelNumber: "Number",
+    numberPlaceholder: "e.g. 12",
+    labelStudentName: "Student Name",
+    studentNamePlaceholder: "e.g. Hong Gildong",
     loginBtn: "🚪 Enter Bookstore!",
     
     mainTitle: "🎨 AI Picture Bookstore",
@@ -281,21 +293,42 @@ function applyLanguage() {
     const i18n = STATIC_I18N[lang];
     if (!i18n) return;
     
-    // Login fields
-    const loginTitle = document.getElementById('loginTitle');
-    if (loginTitle) loginTitle.textContent = i18n.loginTitle;
-    const loginSub = document.getElementById('loginSub');
-    if (loginSub) loginSub.innerHTML = i18n.loginSub;
-    const labelLoginId = document.getElementById('labelLoginId');
-    if (labelLoginId) labelLoginId.textContent = i18n.labelLoginId;
-    const loginId = document.getElementById('loginId');
-    if (loginId) loginId.setAttribute('placeholder', i18n.loginIdPlaceholder);
-    const labelLoginPw = document.getElementById('labelLoginPw');
-    if (labelLoginPw) labelLoginPw.textContent = i18n.labelLoginPw;
-    const loginPw = document.getElementById('loginPw');
-    if (loginPw) loginPw.setAttribute('placeholder', i18n.loginPwPlaceholder);
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) loginBtn.textContent = i18n.loginBtn;
+    // Start Screen fields
+    const startTitle = document.getElementById('startTitle');
+    if (startTitle) startTitle.textContent = i18n.loginTitle || i18n.mainTitle;
+    const startSub = document.getElementById('startSub');
+    if (startSub) startSub.innerHTML = i18n.mainSub;
+    const startCardTitle = document.getElementById('startCardTitle');
+    if (startCardTitle) startCardTitle.textContent = lang === 'en' ? 'Student Information' : '학생 정보 입력';
+    const startCardSub = document.getElementById('startCardSub');
+    if (startCardSub) startCardSub.textContent = lang === 'en' ? 'Please fill in the details below to begin!' : '활동을 시작하기 위해 아래 정보를 적어 주세요!';
+    const btnStartCreate = document.getElementById('btnStartCreate');
+    if (btnStartCreate) btnStartCreate.textContent = lang === 'en' ? '🎨 Start Picture Book Room' : '🎨 그림 책방 시작하기';
+
+    const labelSchool = document.getElementById('labelSchool');
+    if (labelSchool) labelSchool.textContent = i18n.labelSchool;
+    const schoolInput = document.getElementById('school');
+    if (schoolInput && i18n.schoolPlaceholder) schoolInput.setAttribute('placeholder', i18n.schoolPlaceholder);
+
+    const labelGrade = document.getElementById('labelGrade');
+    if (labelGrade) labelGrade.textContent = i18n.labelGrade;
+    const gradeInput = document.getElementById('grade');
+    if (gradeInput && i18n.gradePlaceholder) gradeInput.setAttribute('placeholder', i18n.gradePlaceholder);
+
+    const labelClass = document.getElementById('labelClass');
+    if (labelClass) labelClass.textContent = i18n.labelClass;
+    const classNoInput = document.getElementById('classNo');
+    if (classNoInput && i18n.classPlaceholder) classNoInput.setAttribute('placeholder', i18n.classPlaceholder);
+
+    const labelNumber = document.getElementById('labelNumber');
+    if (labelNumber) labelNumber.textContent = i18n.labelNumber;
+    const numberInput = document.getElementById('number');
+    if (numberInput && i18n.numberPlaceholder) numberInput.setAttribute('placeholder', i18n.numberPlaceholder);
+
+    const labelStudentName = document.getElementById('labelStudentName');
+    if (labelStudentName) labelStudentName.textContent = i18n.labelStudentName;
+    const studentNameInput = document.getElementById('studentName');
+    if (studentNameInput && i18n.studentNamePlaceholder) studentNameInput.setAttribute('placeholder', i18n.studentNamePlaceholder);
     
     // Header
     const mainTitle = document.getElementById('mainTitle');
@@ -472,8 +505,6 @@ const countBadge        = document.getElementById('countBadge');
 const remainingCountEl  = document.getElementById('remainingCount');
 const promptCountBadge  = document.getElementById('promptCountBadge');
 const differenceInput   = document.getElementById('differenceInput');
-const submitClass       = document.getElementById('submitClass');
-const submitName        = document.getElementById('submitName');
 const submitDiffBtn     = document.getElementById('submitDiffBtn');
 const submitResultMsg   = document.getElementById('submitResultMsg');
 
@@ -491,8 +522,6 @@ function openDifferenceNoteZone() {
     const i18n = STATIC_I18N[lang];
     differenceInput.value = '';
     differenceInput.disabled = false;
-    submitClass.disabled = false;
-    submitName.disabled = false;
     submitResultMsg.setAttribute('hidden', '');
     submitResultMsg.textContent = '';
     submitDiffBtn.disabled = true;
@@ -500,16 +529,6 @@ function openDifferenceNoteZone() {
     submitDiffBtn.style.background = '';
     submitDiffBtn.style.boxShadow = '';
     
-    // 이름/학년 자동완성
-    try {
-        const profileData = localStorage.getItem("sail-home-profile");
-        if (profileData) {
-            const prof = JSON.parse(profileData);
-            if (prof.cls) submitClass.value = prof.cls;
-            if (prof.name) submitName.value = prof.name;
-        }
-    } catch (e) {}
-
     validateSubmitForm();
     document.getElementById('differenceNoteZone').removeAttribute('hidden');
 }
@@ -1171,210 +1190,195 @@ checkSelections();
 
 
 /* ────────────────────────────────────────────────────────
-   로그인 시스템 및 세션 관리
+   학생 정보 입력 및 시작 화면 관리 (engage, manage, shape 방식)
    ──────────────────────────────────────────────────────── */
-const loginOverlay  = document.getElementById('loginOverlay');
-const mainContainer = document.getElementById('mainContainer');
-const loginIdInput  = document.getElementById('loginId');
-const loginPwInput  = document.getElementById('loginPw');
-const loginBtn      = document.getElementById('loginBtn');
-const loginError    = document.getElementById('loginError');
-const logoutBtn     = document.getElementById('logoutBtn');
 
-// 세션 상태 확인 함수 (로그인 없이 바로 활동 화면으로)
-function checkAuth() {
-    loginOverlay.setAttribute('hidden', '');
-    mainContainer.removeAttribute('hidden');
+// 학생 정보 폼 유효성 검사 (5개 항목이 모두 작성되었을 때만 버튼 활성화)
+function checkStartInputs() {
+    const school = (document.getElementById('school')?.value || "").trim();
+    const grade = (document.getElementById('grade')?.value || "").trim();
+    const classNo = (document.getElementById('classNo')?.value || "").trim();
+    const number = (document.getElementById('number')?.value || "").trim();
+    const studentName = (document.getElementById('studentName')?.value || "").trim();
+    const btn = document.getElementById('btnStartCreate');
+
+    const isValid = Boolean(school && grade && classNo && number && studentName);
+    if (btn) {
+        btn.disabled = !isValid;
+        if (isValid) {
+            btn.removeAttribute('disabled');
+        } else {
+            btn.setAttribute('disabled', 'disabled');
+        }
+    }
 }
+window.checkStartInputs = checkStartInputs;
 
-// 로그인 실행
-async function handleLogin() {
-    const username = loginIdInput.value.trim();
-    const password = loginPwInput.value.trim();
+// 그림 책방 시작하기 실행
+function startCreateApp() {
+    const school = (document.getElementById('school')?.value || "").trim();
+    const grade = (document.getElementById('grade')?.value || "").trim();
+    const classNo = (document.getElementById('classNo')?.value || "").trim();
+    const number = (document.getElementById('number')?.value || "").trim();
+    const studentName = (document.getElementById('studentName')?.value || "").trim();
 
-    if (!username || !password) {
-        showLoginError('아이디와 비밀번호를 모두 입력해 주세요!');
+    if (!school || !grade || !classNo || !number || !studentName) {
+        alert("학교, 학년, 반, 번호, 이름을 모두 입력해 주세요.");
         return;
     }
 
-    loginBtn.disabled = true;
-    loginBtn.textContent = '🚪 책방에 들어가는 중...';
-    hideLoginError();
+    const studentInfo = { school, grade, classNo, number, name: studentName };
+    const userKey = `${school}_${grade}_${classNo}_${number}_${studentName}`;
+    localStorage.setItem('student_info', JSON.stringify(studentInfo));
+    localStorage.setItem('mallang_session', userKey);
 
-    try {
-        // Supabase Database RPC 함수 호출로 안전하게 검증
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/verify_login`, {
-            method: 'POST',
-            headers: {
-                'apikey':        SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                'Content-Type':  'application/json'
-            },
-            body: JSON.stringify({
-                p_username: username,
-                p_password: password
-            })
+    const startScreen = document.getElementById('startScreen');
+    const mainContainer = document.getElementById('mainContainer');
+    if (startScreen) startScreen.setAttribute('hidden', '');
+    if (mainContainer) mainContainer.removeAttribute('hidden');
+    window.scrollTo(0, 0);
+}
+window.startCreateApp = startCreateApp;
+
+// 실시간 입력 감지 이벤트 등록 (manage, shape 방식)
+["school", "grade", "classNo", "number", "studentName"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        ["input", "change", "keyup", "compositionupdate", "compositionend"].forEach(evt => {
+            el.addEventListener(evt, checkStartInputs);
         });
+        el.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const btn = document.getElementById('btnStartCreate');
+                if (btn && !btn.disabled) {
+                    startCreateApp();
+                }
+            }
+        });
+    }
+});
 
-        if (!res.ok) {
-            throw new Error('서버 통신에 실패했습니다. 다시 시도해 주세요.');
+// 전역 input 감지 (어떤 브라우저 환경에서도 즉시 반영되도록)
+document.addEventListener('input', (e) => {
+    if (['school', 'grade', 'classNo', 'number', 'studentName'].includes(e.target?.id)) {
+        checkStartInputs();
+    }
+});
+
+// 시작하기 클릭 이벤트
+document.addEventListener('click', (e) => {
+    if (e.target && (e.target.id === 'btnStartCreate' || e.target.closest('#btnStartCreate'))) {
+        const btn = document.getElementById('btnStartCreate');
+        if (btn && !btn.disabled) {
+            startCreateApp();
         }
+    }
+});
 
-        const isSuccess = await res.json();
-
-        if (isSuccess === true) {
-            // 로그인 상태 기록 (로컬 스토리지에 단순 플래그 저장)
-            localStorage.setItem('mallang_session', 'logged_in_' + username);
-            
-            // 폼 초기화
-            loginIdInput.value = '';
-            loginPwInput.value = '';
-
-            // 로그인 성공 UI 전환 및 횟수 로드
-            checkAuth();
-            await loadImageCount(username);
-            await loadPromptCount(username);
-        } else {
-            throw new Error('아이디나 비밀번호가 틀렸어요 😢');
+// 기존 저장된 학생 정보가 있다면 입력란에 자동 채우기
+try {
+    const savedInfoStr = localStorage.getItem('student_info');
+    if (savedInfoStr) {
+        const info = JSON.parse(savedInfoStr);
+        if (info) {
+            if (info.school && document.getElementById('school')) document.getElementById('school').value = info.school;
+            if (info.grade && document.getElementById('grade')) document.getElementById('grade').value = info.grade;
+            if (info.classNo && document.getElementById('classNo')) document.getElementById('classNo').value = info.classNo;
+            if (info.number && document.getElementById('number')) document.getElementById('number').value = info.number;
+            if (info.name && document.getElementById('studentName')) document.getElementById('studentName').value = info.name;
         }
-
-    } catch (err) {
-        console.error(err);
-        showLoginError(err.message || '로그인에 실패했습니다. 다시 시도해 주세요.');
-    } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = '🚪 책방 들어가기!';
     }
+} catch (e) {
+    console.error('Error pre-filling student info:', e);
 }
 
-// 이벤트 리스너 등록
-loginBtn.addEventListener('click', handleLogin);
-
-// 엔터 키 누르면 로그인 실행
-loginPwInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        handleLogin();
-    }
-});
-loginIdInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        loginPwInput.focus();
-    }
-});
-
-// 로그아웃 처리
-logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('mallang_session');
-    
-    // Step 4 숨김 및 초기화
-    document.getElementById('step4').setAttribute('hidden', '');
-    compareState.isComparing = false;
-    compareState.first = null;
-    compareState.second = null;
-    compareState.category = null;
-    compareState.newValue = null;
-
-    // Step 4 내부 UI 초기화
-    document.querySelectorAll('.compare-option-btn').forEach(btn => {
-        btn.classList.remove('active-char', 'active-bg', 'active-action', 'original-selection');
-        btn.disabled = false;
-    });
-    compareActionZone.setAttribute('hidden', '');
-
-    // 선택값 초기화
-    state.character  = null;
-    state.background = null;
-    state.action     = null;
-    
-    // 활성화 상태인 그리드 버튼 클래스 해제
-    document.querySelectorAll('.selection-btn').forEach(btn => {
-        btn.classList.remove('active-char', 'active-bg', 'active-action');
-    });
-    
-    checkSelections();
-    checkAuth();
-});
-
-
-// 에러 메시지 헬퍼
-function showLoginError(msg) {
-    loginError.removeAttribute('hidden');
-    loginError.textContent = msg;
-}
-function hideLoginError() {
-    loginError.setAttribute('hidden', '');
-    loginError.textContent = '';
-}
+// 초기 로드 시 유효성 검사 실행
+checkStartInputs();
 
 /* ────────────────────────────────────────────────────────
    선생님에게 제출하기 관련 이벤트 및 로직
    ──────────────────────────────────────────────────────── */
 function validateSubmitForm() {
-    const textVal = differenceInput.value.trim();
-    const classVal = submitClass.value.trim();
-    const nameVal = submitName.value.trim();
+    const textVal = differenceInput ? differenceInput.value.trim() : "";
     
-    // 차이점 기록장에 글자가 있고(최소 1자 이상), 학년/반과 학생 이름이 적히면 활성화
-    submitDiffBtn.disabled = !(textVal.length >= 1 && classVal.length > 0 && nameVal.length > 0);
+    // 차이점 기록장에 글자가 작성되면(최소 1자 이상) 활성화
+    if (submitDiffBtn) {
+        submitDiffBtn.disabled = !(textVal.length >= 1);
+    }
 }
 
-differenceInput.addEventListener('input', validateSubmitForm);
-submitClass.addEventListener('input', validateSubmitForm);
-submitName.addEventListener('input', validateSubmitForm);
+if (differenceInput) {
+    differenceInput.addEventListener('input', validateSubmitForm);
+}
 
 submitDiffBtn.addEventListener('click', async () => {
     const textVal = differenceInput.value.trim();
-    const classVal = submitClass.value.trim();
-    const nameVal = submitName.value.trim();
-    
-    if (!textVal || !classVal || !nameVal) return;
-    
+    if (!textVal) return;
+
+    // 시작 화면에서 입력받은 학생 정보 가져오기
+    let studentInfo = {};
+    try {
+        studentInfo = JSON.parse(localStorage.getItem('student_info') || '{}');
+    } catch (e) {}
+
+    const school = studentInfo.school || document.getElementById('school')?.value.trim() || '학교';
+    const grade = studentInfo.grade || document.getElementById('grade')?.value.trim() || '0';
+    const classNo = studentInfo.classNo || document.getElementById('classNo')?.value.trim() || '0';
+    const number = studentInfo.number || document.getElementById('number')?.value.trim() || '0';
+    const name = studentInfo.name || document.getElementById('studentName')?.value.trim() || '학생';
+    const classVal = [school, grade ? `${grade}학년` : '', classNo ? `${classNo}반` : '', number ? `${number}번` : ''].filter(Boolean).join(' ');
+
+    const image1Src = compareState.first?.imageUrl || (resultImage ? resultImage.src : "");
+    const image2Src = compareState.second?.imageUrl || (document.getElementById('compareImg2') ? document.getElementById('compareImg2').src : "");
+
     const lang = getLang();
     const i18n = STATIC_I18N[lang];
-
 
     submitDiffBtn.disabled = true;
     submitDiffBtn.textContent = i18n.submitDiffBtnLoading;
     submitResultMsg.setAttribute('hidden', '');
     
     // 1. LocalStorage에 백업 저장
-    try {
-        const submission = {
-            when: new Date().toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }),
-            class: classVal,
-            name: nameVal,
-            first: {
-                character: compareState.first.character,
-                background: compareState.first.background,
-                action: compareState.first.action
-            },
-            second: {
-                character: compareState.second.character,
-                background: compareState.second.background,
-                action: compareState.second.action
-            },
-            difference: textVal
-        };
-        const localSubs = JSON.parse(localStorage.getItem('mallang_difference_submissions') || '[]');
-        localSubs.unshift(submission);
-        localStorage.setItem('mallang_difference_submissions', JSON.stringify(localSubs.slice(0, 50)));
-    } catch(e) { console.error('LocalStorage save error:', e); }
-    
-    // 2. 구글 시트로 데이터 전송 (Engage 앱과 같은 구글 스프레드시트 앱 사용)
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzb3lA91_whdGFFPj4auB9p3n_LOkyDT8aT2zBWxBP7TbffIIwUolntzyCG-DR7DlrDg/exec";
-    
     const payload = {
+        timestamp: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }),
         when: new Date().toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }),
+        school: school,
+        grade: grade,
+        classNo: classNo,
+        number: number,
+        name: name,
+        firstCharacter: compareState.first?.character || state.character || "",
+        firstBackground: compareState.first?.background || state.background || "",
+        firstAction: compareState.first?.action || state.action || "",
+        firstPrompt: compareState.first?.promptText || state.koreanPrompt || "",
+        image1: image1Src,
+        changeCategory: compareState.category || "",
+        changeValue: compareState.newValue || "",
+        secondCharacter: compareState.second?.character || "",
+        secondBackground: compareState.second?.background || "",
+        secondAction: compareState.second?.action || "",
+        secondPrompt: compareState.second?.promptText || "",
+        image2: image2Src,
+        difference: textVal,
         profile: {
             cls: classVal,
-            name: nameVal,
+            name: name,
             relation: "그림비교제출"
         },
-        desc: `[비교] 1번째: ${compareState.first.character}/${compareState.first.background}/${getActionKoreanName(compareState.first.action)} vs 2번째: ${compareState.second.character}/${compareState.second.background}/${getActionKoreanName(compareState.second.action)}. 차이점: ${textVal}`,
+        desc: `[비교] 1번째: ${compareState.first?.character || ''}/${compareState.first?.background || ''}/${getActionKoreanName(compareState.first?.action || '')} vs 2번째: ${compareState.second?.character || ''}/${compareState.second?.background || ''}/${getActionKoreanName(compareState.second?.action || '')}. 차이점: ${textVal}`,
         card: "그림비교",
         score: 10,
         verdict: "green"
     };
+
+    try {
+        const localSubs = JSON.parse(localStorage.getItem('mallang_difference_submissions') || '[]');
+        localSubs.unshift(payload);
+        localStorage.setItem('mallang_difference_submissions', JSON.stringify(localSubs.slice(0, 50)));
+    } catch(e) { console.error('LocalStorage save error:', e); }
+    
+    // 2. 구글 시트로 데이터 전송
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw709_PztM0Ykkauhvewdj5rit4fHPxDRFyvnsdbW0ly7PVl7Fh1Yp4DMpaaBMJiuBV/exec";
 
     try {
         await fetch(GOOGLE_SCRIPT_URL, {
@@ -1392,8 +1396,6 @@ submitDiffBtn.addEventListener('click', async () => {
         
         // 제출 후 입력 비활성화
         differenceInput.disabled = true;
-        submitClass.disabled = true;
-        submitName.disabled = true;
     } catch (error) {
         console.error('Submit error:', error);
         // 네트워크 에러가 나더라도 localStorage에 정상 저장되었으므로 완료 메시지 노출
@@ -1405,13 +1407,11 @@ submitDiffBtn.addEventListener('click', async () => {
         submitDiffBtn.style.boxShadow = 'none';
         
         differenceInput.disabled = true;
-        submitClass.disabled = true;
-        submitName.disabled = true;
     }
 });
 
 // 초기 로드 시 실행
-checkAuth();
+checkStartInputs();
 
 // 언어 선택 기능 추가
 document.querySelectorAll('.lang-btn-sub').forEach(btn => {

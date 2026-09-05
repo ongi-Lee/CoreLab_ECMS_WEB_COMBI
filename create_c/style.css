@@ -564,57 +564,65 @@ header p {
     header h1 { font-size: 1.15rem; }
 }
 
-/* ── 로그인 오버레이 & 로그아웃 스타일 ── */
-.login-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: var(--bg-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    padding: 16px;
-    box-sizing: border-box;
-}
-
-.login-overlay[hidden] {
-    display: none !important;
-}
-
-.login-card {
-    background: var(--card-bg);
+/* ── 시작 화면 스타일 (engage, manage, shape 동일 스타일) ── */
+.start-card {
+    background: #ffffff;
+    border: 2px solid var(--border-color);
     border-radius: var(--radius-card);
+    padding: clamp(24px, 4vw, 36px);
+    max-width: 540px;
+    margin: 20px auto 0;
     box-shadow: var(--shadow-card);
-    border: 1px solid var(--border-color);
-    padding: clamp(24px, 5vw, 40px) clamp(20px, 4vw, 32px);
-    width: 100%;
-    max-width: 440px;
-    text-align: center;
-    animation: fadeInUp 0.4s ease-out;
-    box-sizing: border-box;
 }
 
-.login-card h2 {
-    font-size: clamp(1.3rem, 4vw, 1.6rem);
-    color: #1e293b;
+.start-card h2 {
+    font-size: 1.3rem;
     font-weight: 800;
-    margin-bottom: 12px;
+    color: #1e293b;
+    margin-bottom: 6px;
+    text-align: center;
 }
 
-.login-subtitle {
+.start-subtitle {
     font-size: 0.9rem;
     color: var(--text-muted);
-    line-height: 1.6;
-    margin-bottom: 28px;
+    text-align: center;
+    margin-bottom: 24px;
 }
 
-.login-form {
+.start-form {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
+}
+
+.start-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-btn);
+    padding: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+    font-family: inherit;
+}
+
+.start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+}
+
+.start-btn:disabled {
+    background: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
 }
 
 .input-group {
@@ -671,6 +679,15 @@ header p {
 
 .login-btn:active {
     transform: translateY(0);
+}
+
+.login-btn:disabled {
+    background: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    filter: none !important;
 }
 
 .login-error-message {

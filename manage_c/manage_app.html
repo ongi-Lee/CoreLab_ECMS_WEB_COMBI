@@ -106,8 +106,8 @@
     }
     button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(31,41,55,.12);}
     button:disabled{opacity:0.45;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
-    .btn-main{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--main),var(--main2));color:white;}
-    .btn-next{width:100%;background:linear-gradient(135deg,#111827,#374151);color:white;margin-top:14px;}
+    .btn-main{width:100%;margin-top:20px;background:linear-gradient(135deg,var(--main),var(--main2));color:white;}
+    .btn-next{width:100%;background:linear-gradient(135deg,#111827,#374151);color:white;margin-top:20px;}
     .btn-light{background:#eef2ff;color:#26357a;}
     .hidden{display:none!important;}
     .rule{
@@ -196,6 +196,9 @@
     .signal-yellow{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
     .signal-red{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
     @media(max-width:700px){.grid2,.grid3,.choices,.signal-grid{grid-template-columns:1fr}.card{padding:18px}.situation{font-size:1.12rem;}}
+    .choices.disabled .choice{pointer-events:none;opacity:0.4;filter:grayscale(30%);transform:none!important;box-shadow:none!important;}
+    .choices.disabled .choice.selected-a,.choices.disabled .choice.selected-b{opacity:1!important;filter:none!important;transform:scale(1.02)!important;box-shadow:0 8px 20px rgba(0,0,0,0.15)!important;}
+    .feedback{display:none;margin-top:24px;padding:22px;border-radius:20px;border:2px solid transparent;box-shadow:0 6px 20px rgba(0,0,0,0.04);}
     .feedback.show{display:block;}
     .feedback.green{border-color:#bbf7d0;background:#f0fdf4;}
     .feedback.yellow{border-color:#fde68a;background:#fffbeb;}
@@ -320,7 +323,7 @@
 
     <div id="saveBox" class="save-box">
       <strong id="labelSaveTitle">📡 결과 제출</strong>
-      <p id="saveMessage">AI 사용 결심을 적은 뒤 아래 버튼을 누르면 결과가 선생님 구글시트에 저장돼요.</p>
+      <p id="saveMessage"></p>
       <button id="submitButton" class="btn-main" onclick="submitToTeacher()">✅ 선생님에게 결과 제출하기</button>
     </div>
 
@@ -495,7 +498,7 @@ const STATIC_I18N = {
     pledgeTitle: "📝 오늘의 AI 사용 결심",
     pledgePlaceholder: "예: AI가 알려준 정보는 한 번 더 확인하겠습니다.",
     labelSaveTitle: "📡 결과 제출",
-    saveMessage: "AI 사용 결심을 적은 뒤 아래 버튼을 누르면 결과가 선생님 구글시트에 저장돼요.",
+    saveMessage: "",
     submitButton: "✅ 선생님에게 결과 제출하기",
     summaryTitle: "문항별 결과 보기",
     btnRestart: "🔁 한 번 더 도전",
@@ -550,7 +553,7 @@ const STATIC_I18N = {
     pledgeTitle: "📝 Today's AI Resolution",
     pledgePlaceholder: "e.g. I will double-check information provided by AI.",
     labelSaveTitle: "📡 Submit Results",
-    saveMessage: "Write your AI resolution and click below to submit results to your teacher's Google Sheet.",
+    saveMessage: "",
     submitButton: "✅ Submit Results to Teacher",
     summaryTitle: "View Question Details",
     btnRestart: "🔁 Try Again",
@@ -587,6 +590,7 @@ let answers = [];
 let streak = 0;
 let bestStreak = 0;
 let submitted = false;
+let isAnswerChecked = false;
 
 function getLang() {
   return localStorage.getItem('combination_lang') || 'ko';
@@ -697,14 +701,22 @@ function renderMission(){
   document.getElementById("situationText").textContent = q.situation;
   document.getElementById("choiceA").classList.remove("selected-a");
   document.getElementById("choiceB").classList.remove("selected-b");
-  document.getElementById("feedbackBox").className = "feedback";
+  const feedbackBox = document.getElementById("feedbackBox");
+  feedbackBox.className = "feedback";
+  document.getElementById("feedbackTitle").textContent = "";
+  document.getElementById("feedbackText").textContent = "";
+  document.getElementById("scoreText").textContent = "";
   document.getElementById("comboMessage").classList.add("hidden");
   document.getElementById("nextButton").classList.add("hidden");
   document.getElementById("checkButton").classList.remove("hidden");
   document.getElementById("checkButton").disabled = true;
+  isAnswerChecked = false;
+  const choicesEl = document.querySelector(".choices");
+  if(choicesEl) choicesEl.classList.remove("disabled");
 }
 
 function selectChoice(choice){
+  if(isAnswerChecked) return;
   selectedChoice = choice;
   document.getElementById("choiceA").classList.toggle("selected-a", choice==="A");
   document.getElementById("choiceB").classList.toggle("selected-b", choice==="B");
@@ -714,6 +726,9 @@ function selectChoice(choice){
 function checkAnswer(){
   const lang = getLang();
   if(!selectedChoice){ alert(STATIC_I18N[lang].alertSelect); return; }
+  isAnswerChecked = true;
+  const choicesEl = document.querySelector(".choices");
+  if(choicesEl) choicesEl.classList.add("disabled");
   const q = selectedQuestions[index];
   const sig = SIGNAL_INFO[q.signal];
   const correct = selectedChoice === q.best;
@@ -802,7 +817,9 @@ function showResult(){
   confetti();
 }
 
-function submitToTeacher(){
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1gGqXQ4VP9nEC_xTGjv-1h_3KppcrjydacwRgEeUZl1HfLeT91poXDS4ME17lbdnMgw/exec";
+
+async function submitToTeacher(){
   const lang = getLang();
   if(submitted){ alert(STATIC_I18N[lang].alertSubmitted); return; }
 
@@ -818,7 +835,6 @@ function submitToTeacher(){
   const percent = Math.round((totalScore/maxScore)*100);
   const [badgeKo] = getBadgeKo(totalScore, maxScore);
 
-  // Align details payload in Korean for spreadsheet backend compatibility
   const answersKo = answers.map(a => {
     const qKo = QUESTIONS_I18N.ko.find(q => q.id === a.id);
     const sigKo = SIGNAL_INFO_I18N.ko[qKo.signal];
@@ -851,34 +867,30 @@ function submitToTeacher(){
     details: answersKo
   };
 
-  document.getElementById("submitButton").disabled = true;
-  document.getElementById("submitButton").textContent = STATIC_I18N[lang].submitting;
+  const btn = document.getElementById("submitButton");
+  btn.disabled = true;
+  btn.textContent = STATIC_I18N[lang].submitting;
   document.getElementById("saveMessage").textContent = STATIC_I18N[lang].savingMessage;
 
-  google.script.run
-    .withSuccessHandler(function(res){
-      if(res && res.ok){
-        submitted = true;
-        const box = document.getElementById("saveBox");
-        box.classList.add("save-ok");
-        document.getElementById("saveMessage").innerHTML = `${STATIC_I18N[lang].saveOkPrefix} <strong>${res.attemptNo}${lang === 'en' ? '' : '번째'}</strong>${STATIC_I18N[lang].saveOkSuffix}`;
-        document.getElementById("submitButton").textContent = lang === 'en' ? "✅ Submitted" : "✅ 제출 완료";
-      }else{
-        const box = document.getElementById("saveBox");
-        box.classList.add("save-error");
-        document.getElementById("saveMessage").textContent = `${STATIC_I18N[lang].saveFailPrefix} ` + (res ? res.message : (lang === 'en' ? "Unknown Error" : "알 수 없는 오류"));
-        document.getElementById("submitButton").disabled = false;
-        document.getElementById("submitButton").textContent = lang === 'en' ? "Retry Submit" : "다시 제출하기";
-      }
-    })
-    .withFailureHandler(function(err){
-      const box = document.getElementById("saveBox");
-      box.classList.add("save-error");
-      document.getElementById("saveMessage").textContent = `${STATIC_I18N[lang].saveFailPrefix} ` + err.message;
-      document.getElementById("submitButton").disabled = false;
-      document.getElementById("submitButton").textContent = lang === 'en' ? "Retry Submit" : "다시 제출하기";
-    })
-    .submitResult(payload);
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    submitted = true;
+    const box = document.getElementById("saveBox");
+    box.classList.remove("save-error");
+    box.classList.add("save-ok");
+    document.getElementById("saveMessage").innerHTML = `${STATIC_I18N[lang].saveOkPrefix} <strong>1${lang === 'en' ? 'st' : '번째'}</strong>${STATIC_I18N[lang].saveOkSuffix}`;
+    btn.textContent = lang === 'en' ? "✅ Submitted" : "✅ 제출 완료";
+  } catch (err) {
+    const box = document.getElementById("saveBox");
+    box.classList.add("save-error");
+    document.getElementById("saveMessage").textContent = `${STATIC_I18N[lang].saveFailPrefix} ` + err.message;
+    btn.disabled = false;
+    btn.textContent = lang === 'en' ? "Retry Submit" : "다시 제출하기";
+  }
 }
 
 function renderTable(){

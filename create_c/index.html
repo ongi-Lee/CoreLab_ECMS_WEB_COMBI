@@ -12,29 +12,53 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 로그인 화면 Overlay -->
-    <div id="loginOverlay" class="login-overlay" hidden>
-        <div class="login-card">
-            <h2 id="loginTitle">🎨 말랑말랑 AI 그림 책방</h2>
-            <p class="login-subtitle" id="loginSub">재미있는 AI 그림 나라로 들어가기 위해<br>선생님이 주신 아이디와 비밀번호를 입력해요! ✨</p>
-            <div class="login-form">
+    <!-- 시작 화면 (학생 정보 입력) -->
+    <div id="startScreen" class="container">
+        <div class="top-actions">
+            <a href="../index.html" class="home-btn-create">🏠 홈으로</a>
+            <div class="lang-selector-sub">
+                <button class="lang-btn-sub active" data-lang="ko">Korean</button>
+                <button class="lang-btn-sub" data-lang="en">English</button>
+            </div>
+        </div>
+        <header>
+            <h1 id="startTitle">🎨 말랑말랑 AI 그림 책방</h1>
+            <p class="subtitle" id="startSub">주인공, 배경, 행동을 골라서 나만의 특별한 그림을 만들어봐요! ✨</p>
+        </header>
+
+        <div class="start-card">
+            <h2 id="startCardTitle">학생 정보 입력</h2>
+            <p class="start-subtitle" id="startCardSub">활동을 시작하기 위해 아래 정보를 적어 주세요!</p>
+            <div class="start-form">
                 <div class="input-group">
-                    <label for="loginId" id="labelLoginId">아이디</label>
-                    <input type="text" id="loginId" placeholder="아이디를 입력하세요 (예: TEST_01)" autocomplete="username" />
+                    <label for="school" id="labelSchool">학교 이름</label>
+                    <input type="text" id="school" placeholder="예: 서울초등학교" autocomplete="off" oninput="checkStartInputs()" onkeyup="checkStartInputs()" onchange="checkStartInputs()" />
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div class="input-group">
+                        <label for="grade" id="labelGrade">학년</label>
+                        <input type="text" id="grade" inputmode="numeric" placeholder="예: 6" autocomplete="off" oninput="checkStartInputs()" onkeyup="checkStartInputs()" onchange="checkStartInputs()" />
+                    </div>
+                    <div class="input-group">
+                        <label for="classNo" id="labelClass">반</label>
+                        <input type="text" id="classNo" inputmode="numeric" placeholder="예: 1" autocomplete="off" oninput="checkStartInputs()" onkeyup="checkStartInputs()" onchange="checkStartInputs()" />
+                    </div>
+                    <div class="input-group">
+                        <label for="number" id="labelNumber">번호</label>
+                        <input type="text" id="number" inputmode="numeric" placeholder="예: 12" autocomplete="off" oninput="checkStartInputs()" onkeyup="checkStartInputs()" onchange="checkStartInputs()" />
+                    </div>
                 </div>
                 <div class="input-group">
-                    <label for="loginPw" id="labelLoginPw">비밀번호</label>
-                    <input type="password" id="loginPw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
+                    <label for="studentName" id="labelStudentName">학생 이름</label>
+                    <input type="text" id="studentName" placeholder="예: 홍길동" autocomplete="off" oninput="checkStartInputs()" onkeyup="checkStartInputs()" onchange="checkStartInputs()" />
                 </div>
-                <button id="loginBtn" class="login-btn">🚪 책방 들어가기!</button>
-                <div id="loginError" class="login-error-message" hidden></div>
+                <button id="btnStartCreate" class="start-btn" onclick="startCreateApp()" disabled>🎨 그림 책방 시작하기</button>
             </div>
         </div>
     </div>
 
-    <!-- 메인 콘텐츠 컨테이너 (로그인 완료 시 노출) -->
-    <div id="mainContainer" class="container">
-        <button id="logoutBtn" class="logout-btn" hidden>🔒 로그아웃</button>
+    <!-- 메인 콘텐츠 컨테이너 (시작 버튼 클릭 시 노출) -->
+    <div id="mainContainer" class="container" hidden>
         <div class="top-actions">
             <a href="../index.html" class="home-btn-create">🏠 홈으로</a>
             <div class="lang-selector-sub">
@@ -292,17 +316,6 @@
                 </div>
                 <p class="note-description" id="differenceDesc">두 그림에서 달라진 부분이 무엇인지 글로 직접 써보세요!</p>
                 <textarea id="differenceInput" placeholder="예: 첫 번째 그림에서는 코끼리가 우주에서 춤을 췄는데, 두 번째 그림에서는 코끼리 대신 사자가 춤을 추고 있어요. 주인공이 바뀌었어요!"></textarea>
-                
-                <div class="submit-info-row" style="display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px;">
-                        <label for="submitClass" id="labelSubmitClass" style="font-size: 0.85rem; font-weight: 700; color: #475569;">학년/반</label>
-                        <input type="text" id="submitClass" placeholder="예: 5학년 2반" style="width: 100%; padding: 10px 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; outline: none; font-family: inherit;" />
-                    </div>
-                    <div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px;">
-                        <label for="submitName" id="labelSubmitName" style="font-size: 0.85rem; font-weight: 700; color: #475569;">학생 이름</label>
-                        <input type="text" id="submitName" placeholder="예: 홍길동" style="width: 100%; padding: 10px 12px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; outline: none; font-family: inherit;" />
-                    </div>
-                </div>
                 <button type="button" id="submitDiffBtn" class="submit-btn" disabled>선생님에게 제출하기 🚀</button>
                 <div id="submitResultMsg" class="submit-success-message" hidden></div>
             </div>

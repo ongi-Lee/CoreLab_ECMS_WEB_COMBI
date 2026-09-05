@@ -48,6 +48,7 @@ h1{font-family:"Gowun Batang",serif;font-size:25px;font-weight:700;margin:0 0 6p
 .row{display:flex;gap:10px;margin-top:20px}
 .row .btn{width:auto;flex:1}
 
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 label{display:block;font-size:14px;font-weight:700;margin:18px 0 6px}
 input[type=text],textarea{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:8px;
   background:#fff;font-family:inherit;font-size:16px;color:var(--ink);resize:none}
@@ -193,10 +194,28 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
   <section class="screen on" id="scr0">
     <h1 id="scr0_title">더 좋은 세상을 위한<br>우리 가족 AI 제안</h1>
     <p class="sub" id="scr0_sub">학교에서 조사한 AI 사례를 가족과 함께 살펴보고,<br>세상을 돕는 우리 가족만의 AI를 제안해 봅시다.</p>
+    <label for="school" id="scr0_label_school">학교 이름을 적어 주세요</label>
+    <input type="text" id="school" placeholder="예: 서울초등학교" autocomplete="off">
+
+    <div class="grid3">
+      <div>
+        <label for="grade" id="scr0_label_grade">학년</label>
+        <input type="text" id="grade" inputmode="numeric" placeholder="예: 6" autocomplete="off">
+      </div>
+      <div>
+        <label for="classNo" id="scr0_label_class">반</label>
+        <input type="text" id="classNo" inputmode="numeric" placeholder="예: 1" autocomplete="off">
+      </div>
+      <div>
+        <label for="number" id="scr0_label_number">번호</label>
+        <input type="text" id="number" inputmode="numeric" placeholder="예: 12" autocomplete="off">
+      </div>
+    </div>
+
     <label for="fam" id="scr0_label">학생 이름을 적어 주세요</label>
     <input type="text" id="fam" placeholder="예: 홍길동" autocomplete="off">
     <p class="hint" id="scr0_hint">제안서 맨 아래에 ‘○○○ 가족’으로 들어갑니다.</p>
-    <div class="row"><button class="btn" id="scr0_btn" onclick="go(1)">시작하기</button></div>
+    <div class="row"><button class="btn" id="scr0_btn" disabled onclick="startApp()">시작하기</button></div>
   </section>
 
   <section class="screen" id="scr1">
@@ -305,6 +324,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
     
     <div class="row">
       <button class="btn ghost" id="scr4_btn_prev" onclick="go(3);showQ(4)">아이디어로 돌아가기</button>
+      <button class="btn ghost" id="scr4_btn_download" onclick="downloadProposalImage()">📥 이미지 파일로 저장하기</button>
       <button class="btn" id="submitBtn" onclick="submit()">선생님께 제출하기</button>
     </div>
   </section>
@@ -313,13 +333,16 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
     <div class="done">
       <div class="big" id="scr5_title">제안서를 제출했습니다</div>
       <p class="sub" id="scr5_sub">다음 시간에 우리 반 친구들과 함께 나눕니다.<br>가족과 함께 만들어 주셔서 고맙습니다.</p>
-      <button class="btn ghost" id="scr5_btn" onclick="go(4)">제안서 다시 보기</button>
+      <div class="row" style="max-width:460px;margin:20px auto 0;">
+        <button class="btn ghost" id="scr5_btn_download" onclick="downloadProposalImage()">📥 이미지 파일로 저장하기</button>
+        <button class="btn ghost" id="scr5_btn" onclick="go(4)">제안서 다시 보기</button>
+      </div>
     </div>
   </section>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlycYK9v0n_btQebEvr3t8O_-r_iTbao12oIcjIfhG3AF6fI2_G675PEqAUlauVkm4Qg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzW8vml628f0Me7pp76nzCibL27tzIqzi4BuRQn2LxDIJ8acmtkMnFECxhLBn5OXkjq/exec";
 
 const TECH=[
   {id:"추천",label:"추천 AI",desc:"좋아할 것을 골라줘요"},
@@ -389,6 +412,15 @@ const STATIC_I18N = {
   ko: {
     scr0_title: "더 좋은 세상을 위한\n우리 가족 AI 제안",
     scr0_sub: "학교에서 조사한 AI 사례를 가족과 함께 살펴보고,\n세상을 돕는 우리 가족만의 AI를 제안해 봅시다.",
+    scr0_label_school: "학교 이름을 적어 주세요",
+    scr0_school_placeholder: "예: 서울초등학교",
+    scr0_label_grade: "학년",
+    scr0_grade_placeholder: "예: 6",
+    scr0_label_class: "반",
+    scr0_class_placeholder: "예: 1",
+    scr0_label_number: "번호",
+    scr0_number_placeholder: "예: 12",
+    scr0_alert_input: "학교, 학년, 반, 번호, 이름을 모두 입력해 주세요.",
     scr0_label: "학생 이름을 적어 주세요",
     scr0_placeholder: "예: 홍길동",
     scr0_hint: "제안서 맨 아래에 ‘○○○ 가족’으로 들어갑니다.",
@@ -437,11 +469,14 @@ const STATIC_I18N = {
     scr4_e4use_placeholder: "이 AI로 하는 일",
     scr4_e5_title: "5. 무엇이 좋아지나요",
     scr4_btn_prev: "아이디어로 돌아가기",
+    scr4_btn_download: "📥 이미지 파일로 저장하기",
     scr4_btn_submit: "선생님께 제출하기",
-    scr4_btn_submitting: "이미지 생성 및 제출 중... (약 3~5초)",
+    submitBtn: "선생님께 제출하기",
+    scr4_btn_submitting: "제출 중... (약 3~5초)",
     
     scr5_title: "제안서를 제출했습니다",
     scr5_sub: "다음 시간에 우리 반 친구들과 함께 나눕니다.<br>가족과 함께 만들어 주셔서 고맙습니다.",
+    scr5_btn_download: "📥 이미지 파일로 저장하기",
     scr5_btn: "제안서 다시 보기",
     
     submit_err: "제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
@@ -449,6 +484,15 @@ const STATIC_I18N = {
   en: {
     scr0_title: "Our Family AI Proposal\nfor a Better World",
     scr0_sub: "Let's review AI cases investigated in school with family,\nand propose our family's unique AI to help the world.",
+    scr0_label_school: "Please write school name",
+    scr0_school_placeholder: "e.g. Elementary School",
+    scr0_label_grade: "Grade",
+    scr0_grade_placeholder: "e.g. 6",
+    scr0_label_class: "Class",
+    scr0_class_placeholder: "e.g. 1",
+    scr0_label_number: "No.",
+    scr0_number_placeholder: "e.g. 12",
+    scr0_alert_input: "Please enter school, grade, class, number, and name.",
     scr0_label: "Please write the student's name",
     scr0_placeholder: "e.g. John Doe",
     scr0_hint: "It will display as '... Family' at the bottom of the proposal.",
@@ -497,11 +541,14 @@ const STATIC_I18N = {
     scr4_e4use_placeholder: "What this AI does",
     scr4_e5_title: "5. What will improve",
     scr4_btn_prev: "Go back to ideas",
+    scr4_btn_download: "📥 Save Image File",
     scr4_btn_submit: "Submit to Teacher",
-    scr4_btn_submitting: "Generating image & submitting... (about 3~5s)",
+    submitBtn: "Submit to Teacher",
+    scr4_btn_submitting: "Submitting... (about 3~5s)",
     
     scr5_title: "Proposal Submitted",
     scr5_sub: "We will share this with our classmates in the next class.<br>Thank you for creating it with your family.",
+    scr5_btn_download: "📥 Save Image File",
     scr5_btn: "View Proposal Again",
     
     submit_err: "An error occurred during submission. Please try again in a moment."
@@ -538,6 +585,38 @@ function techName(){
 }
 
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+
+function startApp() {
+  const school = (document.getElementById('school').value || "").trim();
+  const grade = (document.getElementById('grade').value || "").trim();
+  const classNo = (document.getElementById('classNo').value || "").trim();
+  const number = (document.getElementById('number').value || "").trim();
+  const fam = (document.getElementById('fam').value || "").trim();
+
+  if (!school || !grade || !classNo || !number || !fam) return;
+  go(1);
+}
+
+function checkInputs() {
+  const school = (document.getElementById('school').value || "").trim();
+  const grade = (document.getElementById('grade').value || "").trim();
+  const classNo = (document.getElementById('classNo').value || "").trim();
+  const number = (document.getElementById('number').value || "").trim();
+  const fam = (document.getElementById('fam').value || "").trim();
+
+  const isValid = Boolean(school && grade && classNo && number && fam);
+  const btn = document.getElementById('scr0_btn');
+  if (btn) btn.disabled = !isValid;
+}
+
+["school", "grade", "classNo", "number", "fam"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", checkInputs);
+    el.addEventListener("change", checkInputs);
+    el.addEventListener("keyup", checkInputs);
+  }
+});
 
 function go(n){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
@@ -587,7 +666,26 @@ function pickTech(id){
   if(id==="기타") setTimeout(()=>document.getElementById('etc').focus(),50);
 }
 
-document.getElementById('ans').addEventListener('input',e=>{A[cur]=e.target.value;buildPv()});
+const ansEl = document.getElementById('ans');
+['input', 'keyup', 'compositionupdate', 'change'].forEach(evt => {
+  ansEl.addEventListener(evt, () => {
+    A[cur] = ansEl.value;
+    buildPv();
+  });
+});
+
+['etc', 'use'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    ['input', 'keyup', 'compositionupdate', 'change'].forEach(evt => {
+      el.addEventListener(evt, () => {
+        if (id === 'etc') A[3].etc = el.value;
+        if (id === 'use') A[3].use = el.value;
+        buildPv();
+      });
+    });
+  }
+});
 
 function nextQ(){if(!getActiveQ()[cur].tech)A[cur]=document.getElementById('ans').value;if(cur<4)showQ(cur+1);else go(4);}
 function prevQ(){if(!getActiveQ()[cur].tech)A[cur]=document.getElementById('ans').value;if(cur>0)showQ(cur-1);else go(2);}
@@ -598,7 +696,7 @@ function sentences(blankStyle){
   const lang = getLang();
   
   if (lang === 'en') {
-    const tech=tn?("using <span class='k'>"+esc(tn)+"</span> AI"):"using <span class='blank'>"+blankStyle+" AI</span>";
+    const tech=tn?("using <span class='k'>"+esc(tn)+"</span>"):"using <span class='blank'>"+blankStyle+"</span>";
     return [
       "Our family proposes an AI that helps with "+b(A[1])+" for "+b(A[0])+".",
       "Because "+b(A[2])+".",
@@ -606,7 +704,7 @@ function sentences(blankStyle){
       "So, our family can "+b(A[4])+"."
     ];
   } else {
-    const tech=tn?("<span class='k'>"+esc(tn)+"</span> AI"):"<span class='blank'>"+blankStyle+" AI</span>";
+    const tech=tn?("<span class='k'>"+esc(tn)+"</span>"):"<span class='blank'>"+blankStyle+"</span>";
     return [
       "우리 가족은 "+b(A[0])+"를 위해 "+b(A[1])+"를 도와주는 AI를 제안합니다.",
       "왜냐하면 "+b(A[2])+" 때문입니다.",
@@ -675,6 +773,10 @@ function buildProposal(){
 
 async function submit() {
   const btn = document.getElementById('submitBtn');
+  const school = (document.getElementById('school').value || "").trim();
+  const grade = (document.getElementById('grade').value || "").trim();
+  const classNo = (document.getElementById('classNo').value || "").trim();
+  const number = (document.getElementById('number').value || "").trim();
   const nm = (document.getElementById('fam').value || "").trim();
   const lang = getLang();
   const i18n = STATIC_I18N[lang];
@@ -694,13 +796,21 @@ async function submit() {
     const base64Data = base64Image.split(',')[1];
 
     const combinedQ4 = `[AI기술: ${techName()}] 할일: ${A[3].use} / 기대효과: ${A[4]}`;
+    const fullText = lang === 'en'
+      ? `Our family proposes an AI that helps with ${A[1]} for ${A[0]}. Because ${A[2]}. This AI helps using ${techName()} to ${A[3].use}. So, our family can ${A[4]}.`
+      : `우리 가족은 ${A[0]}를 위해 ${A[1]}를 도와주는 AI를 제안합니다. 왜냐하면 ${A[2]} 때문입니다. 이 AI는 ${techName()}를 활용해 ${A[3].use}. 그래서 우리 가족은 ${A[4]} 수 있습니다.`;
 
     const payload = {
+      school: school,
+      grade: grade,
+      classNo: classNo,
+      number: number,
       name: nm || (lang === 'en' ? "Unnamed" : "이름없음"),
       q1: A[0],
       q2: A[1],
       q3: A[2],
       q4: combinedQ4,
+      fullText: fullText,
       image: base64Data
     };
 
@@ -718,6 +828,39 @@ async function submit() {
   }
 }
 
+async function downloadProposalImage() {
+  const cardEl = document.getElementById('cardbox');
+  if (!cardEl) return;
+  
+  try {
+    const canvas = await html2canvas(cardEl, { 
+      scale: 2, 
+      useCORS: true, 
+      backgroundColor: "#FAF8F3" 
+    });
+    
+    const school = (document.getElementById('school').value || "").trim();
+    const grade = (document.getElementById('grade').value || "").trim();
+    const classNo = (document.getElementById('classNo').value || "").trim();
+    const number = (document.getElementById('number').value || "").trim();
+    const nm = (document.getElementById('fam').value || "").trim();
+
+    const now = new Date();
+    const timeStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+    const filename = `AI제안서_${school || '학교'}_${grade || '0'}학년_${classNo || '0'}반_${number || '0'}번_${nm || '학생'}_${timeStr}.png`;
+
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL("image/png");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (err) {
+    console.error('Image download error:', err);
+    alert('이미지 저장 중 오류가 발생했습니다.');
+  }
+}
+
 function applyLanguage() {
   const lang = getLang();
   const i18n = STATIC_I18N[lang];
@@ -725,7 +868,7 @@ function applyLanguage() {
   
   // Set texts for HTML elements
   const elIds = [
-    'scr0_title', 'scr0_sub', 'scr0_label', 'scr0_hint', 'scr0_btn',
+    'scr0_title', 'scr0_sub', 'scr0_label_school', 'scr0_label_grade', 'scr0_label_class', 'scr0_label_number', 'scr0_label', 'scr0_hint', 'scr0_btn',
     'scr1_title', 'scr1_sub', 'scr1_link_pos_b', 'scr1_link_pos_s', 'scr1_link_pos_e',
     'scr1_link_neg_b', 'scr1_link_neg_s', 'scr1_link_neg_e', 'scr1_note', 'scr1_check',
     'scr1_btn_prev',
@@ -734,8 +877,8 @@ function applyLanguage() {
     'scr3_btn_prev', 'scr3_etc_label', 'scr3_use_label', 'scr3_tech_ex', 'scr3_preview_cap',
     'scr4_title', 'scr4_sub', 'scr4_editnote',
     'scr4_e0_title', 'scr4_e1_title', 'scr4_e2_title', 'scr4_e4_title', 'scr4_e5_title',
-    'scr4_btn_prev', 'submitBtn',
-    'scr5_title', 'scr5_sub', 'scr5_btn'
+    'scr4_btn_prev', 'scr4_btn_download', 'submitBtn',
+    'scr5_title', 'scr5_sub', 'scr5_btn_download', 'scr5_btn'
   ];
   
   elIds.forEach(id => {
@@ -748,6 +891,15 @@ function applyLanguage() {
       }
     }
   });
+
+  const schoolEl = document.getElementById('school');
+  if (schoolEl && i18n.scr0_school_placeholder) schoolEl.placeholder = i18n.scr0_school_placeholder;
+  const gradeEl = document.getElementById('grade');
+  if (gradeEl && i18n.scr0_grade_placeholder) gradeEl.placeholder = i18n.scr0_grade_placeholder;
+  const classEl = document.getElementById('classNo');
+  if (classEl && i18n.scr0_class_placeholder) classEl.placeholder = i18n.scr0_class_placeholder;
+  const numberEl = document.getElementById('number');
+  if (numberEl && i18n.scr0_number_placeholder) numberEl.placeholder = i18n.scr0_number_placeholder;
 
   // Next buttons scr1 / scr2 text update
   const g1 = document.getElementById('g1');
@@ -805,6 +957,7 @@ document.querySelectorAll('.lang-btn-sub').forEach(btn => {
 // localStorage 값에 따라 초기화
 const savedLang = localStorage.getItem('combination_lang') || 'ko';
 applyLanguage();
+checkInputs();
 </script>
 </body>
 </html>
