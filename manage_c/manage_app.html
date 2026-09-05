@@ -811,13 +811,37 @@ function renderTable(){
   document.getElementById("resultTable").innerHTML = html;
 }
 
+function checkStartForm() {
+  const school = document.getElementById("school") ? document.getElementById("school").value.trim() : "";
+  const grade = document.getElementById("grade") ? document.getElementById("grade").value.trim() : "";
+  const classNo = document.getElementById("classNo") ? document.getElementById("classNo").value.trim() : "";
+  const number = document.getElementById("number") ? document.getElementById("number").value.trim() : "";
+  const nickname = document.getElementById("nickname") ? document.getElementById("nickname").value.trim() : "";
+
+  const isValid = Boolean(school && grade && classNo && number && nickname);
+  const btn = document.getElementById("btnStartGame");
+  if (btn) {
+    btn.disabled = !isValid;
+  }
+}
+
+["school", "grade", "classNo", "number", "nickname"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", checkStartForm);
+    el.addEventListener("change", checkStartForm);
+    el.addEventListener("keyup", checkStartForm);
+  }
+});
+
 function restartSameName(){
-  document.getElementById("school").value = student.school;
-  document.getElementById("grade").value = student.grade;
-  document.getElementById("classNo").value = student.classNo;
-  document.getElementById("number").value = student.number;
-  document.getElementById("nickname").value = student.nickname;
+  document.getElementById("school").value = student.school || "";
+  document.getElementById("grade").value = student.grade || "";
+  document.getElementById("classNo").value = student.classNo || "";
+  document.getElementById("number").value = student.number || "";
+  document.getElementById("nickname").value = student.nickname || "";
   document.getElementById("missionCount").value = student.missionCount;
+  checkStartForm();
   startGame();
 }
 
@@ -829,6 +853,7 @@ function goHome(){
   document.getElementById("classNo").value = student.classNo || "";
   document.getElementById("number").value = student.number || "";
   document.getElementById("nickname").value = student.nickname || "";
+  checkStartForm();
   
   // reset pledge text
   document.getElementById("pledge").value = "";
@@ -875,6 +900,7 @@ if (activeBtn) {
   activeBtn.classList.add('active');
 }
 applyLanguage();
+checkStartForm();
 </script>
 </body>
 </html>
