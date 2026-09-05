@@ -177,7 +177,25 @@
     #choiceB .choice-title{background:rgba(217,119,6,0.14);color:#b45309;}
     #choiceB.selected-b .choice-title{background:#b45309;color:#ffffff;}
     .choice .choice-desc{font-size:1.05rem;font-weight:800;line-height:1.4;}
-    .feedback{margin-top:18px;border-radius:22px;padding:18px;border:2px solid #e5e7eb;display:none;animation:pop .2s ease;}
+    .signal-guide{
+      background:#f8fafc;border:2px solid #e2e8f0;border-radius:20px;padding:16px 18px;margin-top:14px;
+    }
+    .signal-guide-title{
+      font-size:1.05rem;font-weight:900;color:#334155;margin-bottom:10px;
+    }
+    .signal-grid{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+    }
+    .signal-card{
+      border-radius:16px;padding:12px 14px;font-size:0.9rem;line-height:1.45;word-break:keep-all;
+    }
+    .signal-badge{
+      font-weight:900;font-size:0.95rem;margin-bottom:4px;display:flex;align-items:center;gap:4px;
+    }
+    .signal-green{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
+    .signal-yellow{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+    .signal-red{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
+    @media(max-width:700px){.grid2,.grid3,.choices,.signal-grid{grid-template-columns:1fr}.card{padding:18px}.situation{font-size:1.12rem;}}
     .feedback.show{display:block;}
     .feedback.green{border-color:#bbf7d0;background:#f0fdf4;}
     .feedback.yellow{border-color:#fde68a;background:#fffbeb;}
@@ -225,6 +243,24 @@
     <div class="grid2">
       <div class="rule" id="ruleA"><strong>🤖 A 선택</strong><span>AI에게 도움을 받아도 좋은 상황이에요.</span></div>
       <div class="rule" id="ruleB"><strong>🧑 B 선택</strong><span>사람이 직접 판단하고 책임져야 하는 상황이에요.</span></div>
+    </div>
+
+    <div class="signal-guide">
+      <div class="signal-guide-title" id="signalGuideTitle">🚦 미션 결과 신호등 안내</div>
+      <div class="signal-grid">
+        <div class="signal-card signal-green">
+          <div class="signal-badge">🟢 초록 신호</div>
+          <span id="signalGreenDesc">AI 도움을 받아도 좋은 안전하고 유용한 상황</span>
+        </div>
+        <div class="signal-card signal-yellow">
+          <div class="signal-badge">🟡 노랑 신호</div>
+          <span id="signalYellowDesc">AI 도움을 받되 사람이 꼭 확인해야 하는 상황</span>
+        </div>
+        <div class="signal-card signal-red">
+          <div class="signal-badge">🔴 빨강 신호</div>
+          <span id="signalRedDesc">사람이 직접 판단하고 책임져야 하는 중요한 상황</span>
+        </div>
+      </div>
     </div>
 
     <h3 id="studentInfoTitle">학생 정보</h3>
@@ -432,8 +468,12 @@ const STATIC_I18N = {
     subTitleText: "AI에게 맡길까? 사람이 직접 판단할까?",
     startTitle: "🎮 랜덤 미션에 도전해요!",
     startDesc: "주어지는 상황을 읽고, 각 상황에 따라 A선택과 B선택 중 올바른 판단을 내리는 미션이에요.",
-    ruleA: "<strong>🤖 A 선택</strong>AI에게 도움을 받아도 좋은 상황이에요.",
-    ruleB: "<strong>🧑 B 선택</strong>사람이 직접 판단하고 책임져야 하는 상황이에요.",
+    ruleA: "<strong>🤖 A 선택</strong><span>AI에게 도움을 받아도 좋은 상황이에요.</span>",
+    ruleB: "<strong>🧑 B 선택</strong><span>사람이 직접 판단하고 책임져야 하는 상황이에요.</span>",
+    signalGuideTitle: "🚦 미션 결과 신호등 안내",
+    signalGreenDesc: "AI 도움을 받아도 좋은 안전하고 유용한 상황",
+    signalYellowDesc: "AI 도움을 받되 사람이 꼭 확인해야 하는 상황",
+    signalRedDesc: "사람이 직접 판단하고 책임져야 하는 중요한 상황",
     studentInfoTitle: "학생 정보",
     labelSchool: "학교",
     labelGrade: "학년",
@@ -483,8 +523,12 @@ const STATIC_I18N = {
     subTitleText: "Should AI help, or should a human decide?",
     startTitle: "🎮 Challenge the Random Missions!",
     startDesc: "Read each given situation and decide whether to Choose A or Choose B.",
-    ruleA: "<strong>🤖 Choose A</strong>Appropriate situation to get help from AI.",
-    ruleB: "<strong>🧑 Choose B</strong>Situation where humans must judge and take responsibility.",
+    ruleA: "<strong>🤖 Choose A</strong><span>Appropriate situation to get help from AI.</span>",
+    ruleB: "<strong>🧑 Choose B</strong><span>Situation where humans must judge and take responsibility.</span>",
+    signalGuideTitle: "🚦 Signal Light Guide",
+    signalGreenDesc: "Safe & useful situation for AI assistance",
+    signalYellowDesc: "AI can help, but human double-check is required",
+    signalRedDesc: "Requires direct human judgment & responsibility",
     studentInfoTitle: "Student Info",
     labelSchool: "School",
     labelGrade: "Grade",
@@ -565,6 +609,10 @@ function applyLanguage() {
   document.getElementById('startDesc').textContent = i18n.startDesc;
   document.getElementById('ruleA').innerHTML = i18n.ruleA;
   document.getElementById('ruleB').innerHTML = i18n.ruleB;
+  document.getElementById('signalGuideTitle').textContent = i18n.signalGuideTitle;
+  document.getElementById('signalGreenDesc').textContent = i18n.signalGreenDesc;
+  document.getElementById('signalYellowDesc').textContent = i18n.signalYellowDesc;
+  document.getElementById('signalRedDesc').textContent = i18n.signalRedDesc;
   document.getElementById('studentInfoTitle').textContent = i18n.studentInfoTitle;
   document.getElementById('labelSchool').textContent = i18n.labelSchool;
   document.getElementById('school').setAttribute('placeholder', lang === 'en' ? 'e.g. Seoul Elementary' : '예: 서울초등학교');
