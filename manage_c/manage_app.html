@@ -193,15 +193,8 @@
       <div><label id="labelNumber">번호</label><input id="number" inputmode="numeric" placeholder="예: 12"></div>
     </div>
 
-    <div class="grid2" style="margin-top:10px;">
-      <div><label id="labelNickname">이름</label><input id="nickname" placeholder="예: 홍길동"></div>
-      <div><label id="labelMissionCount">미션 수</label>
-        <select id="missionCount">
-          <option value="10" id="opt10">10개</option>
-          <option value="12" id="opt12" selected>12개 추천</option>
-          <option value="15" id="opt15">15개</option>
-        </select>
-      </div>
+    <div style="margin-top:10px;">
+      <label id="labelNickname">이름</label><input id="nickname" placeholder="예: 홍길동">
     </div>
 
     <button class="btn-main" id="btnStartGame" onclick="startGame()" disabled>🚀 랜덤 미션 시작하기</button>
@@ -539,11 +532,6 @@ function applyLanguage() {
   document.getElementById('number').setAttribute('placeholder', lang === 'en' ? 'e.g. 12' : '예: 12');
   document.getElementById('labelNickname').textContent = i18n.labelNickname;
   document.getElementById('nickname').setAttribute('placeholder', lang === 'en' ? 'e.g. Hong Gildong' : '예: 홍길동');
-  document.getElementById('labelMissionCount').textContent = i18n.labelMissionCount;
-  
-  document.getElementById('opt10').textContent = i18n.opt10;
-  document.getElementById('opt12').textContent = i18n.opt12;
-  document.getElementById('opt15').textContent = i18n.opt15;
   document.getElementById('btnStartGame').textContent = i18n.btnStartGame;
 
   document.getElementById('labelChoiceA').innerHTML = i18n.labelChoiceA;
@@ -587,7 +575,7 @@ function startGame(){
   const classNo = document.getElementById("classNo").value.trim();
   const number = document.getElementById("number").value.trim();
   const nickname = document.getElementById("nickname").value.trim();
-  const missionCount = parseInt(document.getElementById("missionCount").value,10);
+  const missionCount = 15;
   const lang = getLang();
 
   if(!school || !grade || !classNo || !number || !nickname){
@@ -840,7 +828,6 @@ function restartSameName(){
   document.getElementById("classNo").value = student.classNo || "";
   document.getElementById("number").value = student.number || "";
   document.getElementById("nickname").value = student.nickname || "";
-  document.getElementById("missionCount").value = student.missionCount;
   checkStartForm();
   startGame();
 }
