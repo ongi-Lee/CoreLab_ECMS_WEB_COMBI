@@ -997,9 +997,16 @@ async function finishMission() {
   const cardIndex = AI_CARDS_I18N[lang].findIndex(c => c.id === cardId);
   const cardKo = cardIndex !== -1 ? AI_CARDS_I18N.ko[cardIndex].name : (cardId === "etc" ? customCard : "기타");
 
+  const checkAnswers = answers.map(s => {
+    if (s === 2) return "항상 그래요";
+    if (s === 1) return "가끔 그래요";
+    if (s === 0) return "아직 안 해요";
+    return "";
+  });
+
   const rec = {
     when: new Date().toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }),
-    profile: { ...profile, relation: relationKo }, photo, desc, card: cardKo, score, verdict: verdictKey,
+    profile: { ...profile, relation: relationKo }, photo, desc, card: cardKo, checkAnswers, score, verdict: verdictKey,
   };
   const next = [rec, ...records].slice(0, 10);
   records = next;
