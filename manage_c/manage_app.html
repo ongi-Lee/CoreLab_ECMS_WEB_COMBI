@@ -218,7 +218,7 @@
       <div id="choiceB" class="choice" onclick="selectChoice('B')"><div class="emoji">🧑</div><div class="label" id="labelChoiceB">B. 사람이 직접<br>판단해야 해!</div></div>
     </div>
 
-    <button id="checkButton" class="btn-main" onclick="checkAnswer()">✅ 선택 확인</button>
+    <button id="checkButton" class="btn-main" onclick="checkAnswer()" disabled>✅ 선택 확인</button>
     <div id="feedbackBox" class="feedback"><h3 id="feedbackTitle"></h3><p id="feedbackText"></p><p id="scoreText"></p><div id="comboMessage" class="combo hidden"></div></div>
     <button id="nextButton" class="btn-next hidden" onclick="nextMission()">➡️ 다음 랜덤 미션</button>
   </section>
@@ -609,12 +609,14 @@ function renderMission(){
   document.getElementById("comboMessage").classList.add("hidden");
   document.getElementById("nextButton").classList.add("hidden");
   document.getElementById("checkButton").classList.remove("hidden");
+  document.getElementById("checkButton").disabled = true;
 }
 
 function selectChoice(choice){
   selectedChoice = choice;
   document.getElementById("choiceA").classList.toggle("selected-a", choice==="A");
   document.getElementById("choiceB").classList.toggle("selected-b", choice==="B");
+  document.getElementById("checkButton").disabled = false;
 }
 
 function checkAnswer(){
