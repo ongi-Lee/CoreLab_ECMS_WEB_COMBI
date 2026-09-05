@@ -175,7 +175,7 @@
 
   <section id="startScreen" class="card">
     <h2 id="startTitle">🎮 랜덤 미션에 도전해요!</h2>
-    <p id="startDesc">50개의 상황 카드 중에서 무작위 미션이 나와요. 학년·반·번호를 입력하면 결과가 선생님 구글시트에 저장돼요.</p>
+    <p id="startDesc">50개의 상황 카드 중에서 무작위 미션이 나와요. 학교·학년·반·번호와 이름을 입력하면 결과가 선생님 구글시트에 저장돼요.</p>
 
     <div class="grid2">
       <div class="rule" id="ruleA"><strong>🤖 A 선택</strong>AI에게 도움을 받아도 좋은 상황이에요.</div>
@@ -183,14 +183,17 @@
     </div>
 
     <h3 id="studentInfoTitle">학생 정보</h3>
+    <div style="margin-bottom:10px;">
+      <label id="labelSchool">학교</label><input id="school" placeholder="예: 서울초등학교">
+    </div>
     <div class="grid3">
       <div><label id="labelGrade">학년</label><input id="grade" inputmode="numeric" placeholder="예: 6"></div>
       <div><label id="labelClass">반</label><input id="classNo" inputmode="numeric" placeholder="예: 1"></div>
       <div><label id="labelNumber">번호</label><input id="number" inputmode="numeric" placeholder="예: 12"></div>
     </div>
 
-    <div class="grid2" style="margin-top:12px;">
-      <div><label id="labelNickname">닉네임</label><input id="nickname" placeholder="예: AI탐험가"></div>
+    <div class="grid2" style="margin-top:10px;">
+      <div><label id="labelNickname">이름</label><input id="nickname" placeholder="예: 홍길동"></div>
       <div><label id="labelMissionCount">미션 수</label>
         <select id="missionCount">
           <option value="10" id="opt10">10개</option>
@@ -200,7 +203,6 @@
       </div>
     </div>
 
-    <p class="small-note" id="researchNote">※ 연구용으로 사용할 경우 이름 대신 연구번호 사용을 권장합니다. 학년·반·번호도 개인을 식별할 수 있는 정보입니다.</p>
     <button class="btn-main" id="btnStartGame" onclick="startGame()">🚀 랜덤 미션 시작하기</button>
   </section>
 
@@ -391,19 +393,19 @@ const STATIC_I18N = {
     pageTitle: "⚖️ AI 밸런스 게임",
     subTitleText: "AI에게 맡길까? 사람이 직접 판단할까?",
     startTitle: "🎮 랜덤 미션에 도전해요!",
-    startDesc: "50개의 상황 카드 중에서 무작위 미션이 나와요. 학년·반·번호를 입력하면 결과가 선생님 구글시트에 저장돼요.",
+    startDesc: "50개의 상황 카드 중에서 무작위 미션이 나와요. 학교·학년·반·번호와 이름을 입력하면 결과가 선생님 구글시트에 저장돼요.",
     ruleA: "<strong>🤖 A 선택</strong>AI에게 도움을 받아도 좋은 상황이에요.",
     ruleB: "<strong>🧑 B 선택</strong>사람이 직접 판단하고 책임져야 하는 상황이에요.",
     studentInfoTitle: "학생 정보",
+    labelSchool: "학교",
     labelGrade: "학년",
     labelClass: "반",
     labelNumber: "번호",
-    labelNickname: "닉네임",
+    labelNickname: "이름",
     labelMissionCount: "미션 수",
     opt10: "10개",
     opt12: "12개 추천",
     opt15: "15개",
-    researchNote: "※ 연구용으로 사용할 경우 이름 대신 연구번호 사용을 권장합니다. 학년·반·번호도 개인을 식별할 수 있는 정보입니다.",
     btnStartGame: "🚀 랜덤 미션 시작하기",
     labelChoiceA: "A. AI에게<br>도움받아도 좋아!",
     labelChoiceB: "B. 사람이 직접<br>판단해야 해!",
@@ -420,7 +422,7 @@ const STATIC_I18N = {
     summaryTitle: "문항별 결과 보기",
     btnRestart: "🔁 한 번 더 도전",
     btnHome: "🏠 처음으로",
-    alertInput: "학년, 반, 번호, 닉네임을 모두 입력해 주세요.",
+    alertInput: "학교, 학년, 반, 번호, 이름을 모두 입력해 주세요.",
     alertSelect: "A 또는 B를 선택해 주세요.",
     feedbackCorrect: "좋은 판단이에요!",
     feedbackIncorrect: "다시 생각해 볼까요?",
@@ -442,19 +444,19 @@ const STATIC_I18N = {
     pageTitle: "⚖️ AI Balance Game",
     subTitleText: "Should AI help, or should a human decide?",
     startTitle: "🎮 Challenge the Random Missions!",
-    startDesc: "Random missions will be selected from 50 situation cards. Enter your details to submit results to your teacher's Google Sheet.",
+    startDesc: "Random missions will be selected from 50 situation cards. Enter your school, grade, class, number, and name to submit results to your teacher's Google Sheet.",
     ruleA: "<strong>🤖 Choose A</strong>Appropriate situation to get help from AI.",
     ruleB: "<strong>🧑 Choose B</strong>Situation where humans must judge and take responsibility.",
     studentInfoTitle: "Student Info",
+    labelSchool: "School",
     labelGrade: "Grade",
     labelClass: "Class",
     labelNumber: "No.",
-    labelNickname: "Nickname",
+    labelNickname: "Name",
     labelMissionCount: "Missions",
     opt10: "10 Cards",
     opt12: "12 Cards (Rec.)",
     opt15: "15 Cards",
-    researchNote: "* For research purposes, it is recommended to use a research number instead of your real name. Grade, Class, and No. are also identifying data.",
     btnStartGame: "🚀 Start Random Missions",
     labelChoiceA: "A. AI can<br>help here!",
     labelChoiceB: "B. Humans must<br>decide here!",
@@ -471,7 +473,7 @@ const STATIC_I18N = {
     summaryTitle: "View Question Details",
     btnRestart: "🔁 Try Again",
     btnHome: "🏠 Main Menu",
-    alertInput: "Please enter Grade, Class, No., and Nickname.",
+    alertInput: "Please enter School, Grade, Class, No., and Name.",
     alertSelect: "Please select A or B.",
     feedbackCorrect: "Great choice!",
     feedbackIncorrect: "Let's think again.",
@@ -526,6 +528,8 @@ function applyLanguage() {
   document.getElementById('ruleA').innerHTML = i18n.ruleA;
   document.getElementById('ruleB').innerHTML = i18n.ruleB;
   document.getElementById('studentInfoTitle').textContent = i18n.studentInfoTitle;
+  document.getElementById('labelSchool').textContent = i18n.labelSchool;
+  document.getElementById('school').setAttribute('placeholder', lang === 'en' ? 'e.g. Seoul Elementary' : '예: 서울초등학교');
   document.getElementById('labelGrade').textContent = i18n.labelGrade;
   document.getElementById('grade').setAttribute('placeholder', lang === 'en' ? 'e.g. 6' : '예: 6');
   document.getElementById('labelClass').textContent = i18n.labelClass;
@@ -533,13 +537,12 @@ function applyLanguage() {
   document.getElementById('labelNumber').textContent = i18n.labelNumber;
   document.getElementById('number').setAttribute('placeholder', lang === 'en' ? 'e.g. 12' : '예: 12');
   document.getElementById('labelNickname').textContent = i18n.labelNickname;
-  document.getElementById('nickname').setAttribute('placeholder', lang === 'en' ? 'e.g. Explorer' : '예: AI탐험가');
+  document.getElementById('nickname').setAttribute('placeholder', lang === 'en' ? 'e.g. Hong Gildong' : '예: 홍길동');
   document.getElementById('labelMissionCount').textContent = i18n.labelMissionCount;
   
   document.getElementById('opt10').textContent = i18n.opt10;
   document.getElementById('opt12').textContent = i18n.opt12;
   document.getElementById('opt15').textContent = i18n.opt15;
-  document.getElementById('researchNote').textContent = i18n.researchNote;
   document.getElementById('btnStartGame').textContent = i18n.btnStartGame;
 
   document.getElementById('labelChoiceA').innerHTML = i18n.labelChoiceA;
@@ -578,6 +581,7 @@ function shuffle(array){
 }
 
 function startGame(){
+  const school = document.getElementById("school").value.trim();
   const grade = document.getElementById("grade").value.trim();
   const classNo = document.getElementById("classNo").value.trim();
   const number = document.getElementById("number").value.trim();
@@ -585,12 +589,12 @@ function startGame(){
   const missionCount = parseInt(document.getElementById("missionCount").value,10);
   const lang = getLang();
 
-  if(!grade || !classNo || !number || !nickname){
+  if(!school || !grade || !classNo || !number || !nickname){
     alert(STATIC_I18N[lang].alertInput);
     return;
   }
 
-  student = {grade, classNo, number, nickname, missionCount};
+  student = {school, grade, classNo, number, nickname, missionCount};
   selectedQuestions = shuffle(QUESTIONS).slice(0, missionCount);
   index = 0; selectedChoice = null; answers = []; streak = 0; bestStreak = 0; submitted = false;
 
@@ -703,8 +707,8 @@ function showResult(){
   const lang = getLang();
 
   document.getElementById("resultName").textContent = lang === 'en' 
-    ? `${student.grade} Grade, Class ${student.classNo}, No. ${student.number} ${student.nickname}${STATIC_I18N[lang].resultNameSuffix}`
-    : `${student.grade}학년 ${student.classNo}반 ${student.number}번 ${student.nickname}${STATIC_I18N[lang].resultNameSuffix}`;
+    ? `${student.school} · ${student.grade} Grade, Class ${student.classNo}, No. ${student.number} ${student.nickname}${STATIC_I18N[lang].resultNameSuffix}`
+    : `${student.school} · ${student.grade}학년 ${student.classNo}반 ${student.number}번 ${student.nickname}${STATIC_I18N[lang].resultNameSuffix}`;
   document.getElementById("scoreBig").textContent = `${totalScore} / ${maxScore}`;
   document.getElementById("badgeText").textContent = badge;
   document.getElementById("commentText").textContent = comment;
@@ -748,6 +752,7 @@ function submitToTeacher(){
   });
 
   const payload = {
+    school: student.school,
     grade: student.grade,
     classNo: student.classNo,
     number: student.number,
@@ -806,6 +811,7 @@ function renderTable(){
 }
 
 function restartSameName(){
+  document.getElementById("school").value = student.school;
   document.getElementById("grade").value = student.grade;
   document.getElementById("classNo").value = student.classNo;
   document.getElementById("number").value = student.number;
@@ -817,6 +823,7 @@ function restartSameName(){
 function goHome(){
   document.getElementById("resultScreen").classList.add("hidden");
   document.getElementById("startScreen").classList.remove("hidden");
+  document.getElementById("school").value = student.school || "";
   document.getElementById("grade").value = student.grade || "";
   document.getElementById("classNo").value = student.classNo || "";
   document.getElementById("number").value = student.number || "";
