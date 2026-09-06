@@ -1070,12 +1070,18 @@ async function finishMission() {
 
   // 구글 시트 전송
   try {
-    await fetch(GOOGLE_SCRIPT_URL, {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(rec),
     });
-    savedNote.textContent = STATIC_I18N[lang].savedNoteDone;
+    const result = await res.json().catch(() => null);
+    if (result && result.result === "error") {
+      console.error("저장 에러:", result.error);
+      savedNote.textContent = STATIC_I18N[lang].savedNoteFail + " (" + result.error + ")";
+    } else {
+      savedNote.textContent = STATIC_I18N[lang].savedNoteDone;
+    }
   } catch {
     savedNote.textContent = STATIC_I18N[lang].savedNoteFail;
   }
