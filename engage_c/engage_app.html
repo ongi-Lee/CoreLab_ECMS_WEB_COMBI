@@ -279,11 +279,15 @@
   <div style="display: flex; gap: 10px;">
     <div style="flex: 1;">
       <label class="field-label" id="labelGrade">학년</label>
-      <input class="input" id="inputGrade" placeholder="예) 5학년">
+      <input class="input" id="inputGrade" inputmode="numeric" placeholder="예) 5">
     </div>
     <div style="flex: 1;">
       <label class="field-label" id="labelCls">반</label>
-      <input class="input" id="inputCls" placeholder="예) 2반">
+      <input class="input" id="inputCls" inputmode="numeric" placeholder="예) 2">
+    </div>
+    <div style="flex: 1;">
+      <label class="field-label" id="labelNumber">번호</label>
+      <input class="input" id="inputNumber" inputmode="numeric" placeholder="예) 12">
     </div>
   </div>
 
@@ -468,9 +472,11 @@ const STATIC_I18N = {
     labelSchool: "학교 이름",
     inputSchoolPlaceholder: "예) 서울초등학교",
     labelGrade: "학년",
-    inputGradePlaceholder: "예) 5학년",
+    inputGradePlaceholder: "예) 5",
     labelCls: "반",
-    inputClsPlaceholder: "예) 2반",
+    inputClsPlaceholder: "예) 2",
+    labelNumber: "번호",
+    inputNumberPlaceholder: "예) 12",
     labelName: "학생 이름",
     inputNamePlaceholder: "예) 홍길동",
     labelRelation: "지금 참여하는 사람은?",
@@ -517,9 +523,11 @@ const STATIC_I18N = {
     labelSchool: "School Name",
     inputSchoolPlaceholder: "e.g. Seoul Elementary School",
     labelGrade: "Grade",
-    inputGradePlaceholder: "e.g. Grade 5",
+    inputGradePlaceholder: "e.g. 5",
     labelCls: "Class",
-    inputClsPlaceholder: "e.g. Class 2",
+    inputClsPlaceholder: "e.g. 2",
+    labelNumber: "Number",
+    inputNumberPlaceholder: "e.g. 12",
     labelName: "Student Name",
     inputNamePlaceholder: "e.g. John Doe",
     labelRelation: "Who is participating now?",
@@ -569,7 +577,7 @@ let CHECK_ITEMS = CHECK_ITEMS_I18N.ko;
 let SCALE = SCALE_I18N.ko;
 let VERDICTS = VERDICTS_I18N.ko;
 
-let profile   = { school: "", grade: "", cls: "", name: "", relation: RELATIONS[0] };
+let profile   = { school: "", grade: "", cls: "", number: "", name: "", relation: RELATIONS[0] };
 let photo     = null;
 let desc      = "";
 let cardId    = null;
@@ -613,6 +621,8 @@ function applyLanguage() {
   document.getElementById('inputGrade').setAttribute('placeholder', i18n.inputGradePlaceholder);
   document.getElementById('labelCls').textContent = i18n.labelCls;
   document.getElementById('inputCls').setAttribute('placeholder', i18n.inputClsPlaceholder);
+  document.getElementById('labelNumber').textContent = i18n.labelNumber;
+  document.getElementById('inputNumber').setAttribute('placeholder', i18n.inputNumberPlaceholder);
   document.getElementById('labelName').textContent = i18n.labelName;
   document.getElementById('inputName').setAttribute('placeholder', i18n.inputNamePlaceholder);
   document.getElementById('labelRelation').textContent = i18n.labelRelation;
@@ -693,6 +703,16 @@ function init() {
     if (p) profile = JSON.parse(p);
   } catch {}
   try {
+    const sInfo = JSON.parse(localStorage.getItem("student_info") || "{}");
+    if (sInfo) {
+      if (!profile.school && sInfo.school) profile.school = sInfo.school;
+      if (!profile.grade && sInfo.grade) profile.grade = sInfo.grade;
+      if (!profile.cls && sInfo.classNo) profile.cls = sInfo.classNo;
+      if (!profile.number && sInfo.number) profile.number = sInfo.number;
+      if (!profile.name && sInfo.name) profile.name = sInfo.name;
+    }
+  } catch {}
+  try {
     const r = localStorage.getItem("sail-home-records");
     if (r) records = JSON.parse(r);
   } catch {}
@@ -714,12 +734,14 @@ function init() {
   document.getElementById("inputSchool").value = profile.school || "";
   document.getElementById("inputGrade").value  = profile.grade  || "";
   document.getElementById("inputCls").value    = profile.cls    || "";
+  document.getElementById("inputNumber").value = profile.number || "";
   document.getElementById("inputName").value   = profile.name   || "";
 
   // 입력 이벤트
   document.getElementById("inputSchool").addEventListener("input", e => { profile.school = e.target.value; updateStartBtn(); });
   document.getElementById("inputGrade").addEventListener("input",  e => { profile.grade  = e.target.value; updateStartBtn(); });
   document.getElementById("inputCls").addEventListener("input",    e => { profile.cls    = e.target.value; updateStartBtn(); });
+  document.getElementById("inputNumber").addEventListener("input", e => { profile.number = e.target.value; updateStartBtn(); });
   document.getElementById("inputName").addEventListener("input",   e => { profile.name   = e.target.value; updateStartBtn(); });
   document.getElementById("descInput").addEventListener("input", e => { desc = e.target.value; updatePhotoNext(); });
   document.getElementById("etcInput").addEventListener("input",  e => { customCard = e.target.value; updateCardsNext(); });
@@ -785,7 +807,13 @@ function showScreen(name) {
   // 프로필 태그
   const whoTag = document.getElementById("whoTag");
   if (profile.name && name !== "start") {
-    const studentInfo = [profile.school, profile.grade, profile.cls, profile.name].filter(Boolean).join(" ");
+    const studentInfo = [
+      profile.school,
+      profile.grade ? (profile.grade.includes("학년") ? profile.grade : `${profile.grade}학년`) : "",
+      profile.cls ? (profile.cls.includes("반") ? profile.cls : `${profile.cls}반`) : "",
+      profile.number ? (profile.number.includes("번") ? profile.number : `${profile.number}번`) : "",
+      profile.name
+    ].filter(Boolean).join(" ");
     whoTag.textContent = studentInfo;
     whoTag.classList.remove("hidden");
   } else {
@@ -803,7 +831,13 @@ function selectRelation(r) {
   });
 }
 function updateStartBtn() {
-  document.getElementById("btnStart").disabled = !(profile.name.trim() && profile.cls.trim());
+  document.getElementById("btnStart").disabled = !(
+    profile.school.trim() &&
+    profile.grade.trim() &&
+    profile.cls.trim() &&
+    profile.number.trim() &&
+    profile.name.trim()
+  );
 }
 function updateHistoryBtn() {
   const btn = document.getElementById("btnHistory");
@@ -815,7 +849,16 @@ function updateHistoryBtn() {
   }
 }
 function startMission() {
-  try { localStorage.setItem("sail-home-profile", JSON.stringify(profile)); } catch {}
+  try {
+    localStorage.setItem("sail-home-profile", JSON.stringify(profile));
+    localStorage.setItem("student_info", JSON.stringify({
+      school: profile.school,
+      grade: profile.grade,
+      classNo: profile.cls,
+      number: profile.number,
+      name: profile.name
+    }));
+  } catch {}
   showScreen("photo");
 }
 
@@ -956,7 +999,7 @@ async function finishMission() {
 
   // 요약
   const summary = document.getElementById("resultSummary");
-  const studentInfo = [profile.school, profile.grade, profile.cls, profile.name].filter(Boolean).join(" ");
+  const studentInfo = [profile.school, profile.grade, profile.cls, profile.number, profile.name].filter(Boolean).join(" ");
   if (lang === 'en') {
     summary.innerHTML = (photo ? `<img src="${photo}" class="result-thumb" alt="">` : "") +
       `<div>
@@ -1006,7 +1049,19 @@ async function finishMission() {
 
   const rec = {
     when: new Date().toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }),
-    profile: { ...profile, relation: relationKo }, photo, desc, card: cardKo, checkAnswers, score, verdict: verdictKey,
+    school: profile.school || "",
+    grade: profile.grade || "",
+    classNo: profile.cls || "",
+    number: profile.number || "",
+    name: profile.name || "",
+    relation: relationKo,
+    profile: { ...profile, relation: relationKo },
+    photo,
+    desc,
+    card: cardKo,
+    checkAnswers,
+    score,
+    verdict: verdictKey,
   };
   const next = [rec, ...records].slice(0, 10);
   records = next;
