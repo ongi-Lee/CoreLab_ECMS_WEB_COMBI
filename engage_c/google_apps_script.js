@@ -4,13 +4,14 @@
  * 구글 스프레드시트 및 구글 드라이브 연동 Google Apps Script
  * =========================================================================
  * 
- * [★ 중요: 최초 1회 권한 승인 및 배포 순서]
- * 1. 코드 전체를 복사하여 Apps Script 편집기에 붙여넣고 [저장 (Ctrl+S)]을 누릅니다.
+ * [★ 중요: 드라이브 사진 저장 권한 승인 및 배포 순서]
+ * 1. 이 코드 전체를 복사하여 Apps Script 편집기에 붙여넣고 [저장 (Ctrl+S)]을 누릅니다.
  * 2. 상단 실행 함수 드롭다운에서 'testAuth'를 선택하고 [실행] 버튼을 클릭합니다.
- * 3. [권한 검토] 팝업이 뜨면 -> 본인 구글 계정 선택 -> [고급] 클릭 -> [CoreLab(안전하지 않음)으로 이동] -> [허용]을 누릅니다.
- * 4. 아래 실행 로그에 "✅ 구글 드라이브 및 스프레드시트 권한 승인 완료!"가 뜨는지 확인합니다.
+ * 3. [권한 검토] 팝업이 뜨면:
+ *    - 본인 구글 계정 선택 -> [고급] 클릭 -> [CoreLab(안전하지 않음)으로 이동] -> [허용]을 누릅니다.
+ * 4. 아래 실행 로그에 "✅ 구글 드라이브 쓰기 권한 및 스프레드시트 권한이 완벽하게 승인되었습니다!"가 뜨는지 확인합니다.
  * 5. 오른쪽 상단 [배포] -> [배포 관리] 클릭
- *    - 연필(수정) 아이콘 클릭 -> 버전: [새 버전] 선택
+ *    - 연필(✏️ 수정) 아이콘 클릭 -> 버전: [새 버전] 선택
  *    - 다음 사용자로 실행: 나(내 계정)
  *    - 액세스 권한: 모든 사용자(Anyone)
  *    - [배포] 클릭!
@@ -20,14 +21,20 @@
 const FOLDER_ID = "1k9WviV6jJbZVSNjVzVEWigE9KMPGO4Gu";
 
 /**
- * ★ [필수 실행] 구글 드라이브 및 스프레드시트 권한 승인용 테스트 함수
- * 편집기 상단에서 이 함수를 선택하고 [실행]을 눌러 권한을 허용해 주세요.
+ * ★ [필수 실행] 구글 드라이브 쓰기(파일 생성) 및 스프레드시트 권한 승인 함수
+ * 상단에서 'testAuth'를 선택하고 [실행]을 눌러 드라이브 쓰기 권한을 허용해 주세요!
  */
 function testAuth() {
   SpreadsheetApp.getActiveSpreadsheet();
   const folder = DriveApp.getFolderById(FOLDER_ID);
+  
+  // 구글 드라이브 파일 쓰기(생성) 권한을 강제로 활성화하고 테스트
+  const testBlob = Utilities.newBlob("Drive write permission test", "text/plain", "권한테스트_임시파일.txt");
+  const testFile = folder.createFile(testBlob);
+  testFile.setTrashed(true); // 테스트 생성 후 즉시 휴지통 이동
+  
   Logger.log("✅ 대상 폴더 연결 확인: " + folder.getName());
-  Logger.log("✅ 구글 드라이브 및 스프레드시트 권한 승인 완료!");
+  Logger.log("✅ 구글 드라이브 쓰기 권한 및 스프레드시트 권한이 완벽하게 승인되었습니다!");
 }
 
 function doGet(e) {
@@ -43,7 +50,13 @@ function doPost(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName("탐험대결과");
     if (!sheet) {
-      sheet = ss.insertSheet("탐험대결과");
+      const firstSheet = ss.getSheets()[0];
+      if (firstSheet && firstSheet.getLastRow() === 0) {
+        firstSheet.setName("탐험대결과");
+        sheet = firstSheet;
+      } else {
+        sheet = ss.insertSheet("탐험대결과");
+      }
     }
     
     // 시트 헤더가 없으면 첫 행 자동 생성
