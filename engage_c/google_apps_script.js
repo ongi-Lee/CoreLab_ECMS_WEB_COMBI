@@ -4,38 +4,19 @@
  * 구글 스프레드시트 및 구글 드라이브 연동 Google Apps Script
  * =========================================================================
  * 
- * [★ 중요: 드라이브 사진 저장 권한 승인 및 배포 순서]
- * 1. 이 코드 전체를 복사하여 Apps Script 편집기에 붙여넣고 [저장 (Ctrl+S)]을 누릅니다.
- * 2. 상단 실행 함수 드롭다운에서 'testAuth'를 선택하고 [실행] 버튼을 클릭합니다.
- * 3. [권한 검토] 팝업이 뜨면:
- *    - 본인 구글 계정 선택 -> [고급] 클릭 -> [CoreLab(안전하지 않음)으로 이동] -> [허용]을 누릅니다.
- * 4. 아래 실행 로그에 "✅ 구글 드라이브 쓰기 권한 및 스프레드시트 권한이 완벽하게 승인되었습니다!"가 뜨는지 확인합니다.
- * 5. 오른쪽 상단 [배포] -> [배포 관리] 클릭
- *    - 연필(✏️ 수정) 아이콘 클릭 -> 버전: [새 버전] 선택
+ * [배포 안내]
+ * 1. 구글 스프레드시트 상단 메뉴 [확장 프로그램] -> [Apps Script] 클릭
+ * 2. 기존 코드를 모두 지우고 이 코드 전체를 붙여넣기 후 [저장 (Ctrl+S)]
+ * 3. 오른쪽 상단 [배포] -> [새 배포] 클릭
+ * 4. 유형: [웹 앱] 선택
+ *    - 설명: AI 검증 탐험대 저장
  *    - 다음 사용자로 실행: 나(내 계정)
- *    - 액세스 권한: 모든 사용자(Anyone)
- *    - [배포] 클릭!
+ *    - 액세스 권한: 모든 사용자 (로그인 불필요) ★ 중요!
+ * 5. [배포] 버튼 클릭 (권한 승인 창이 뜨면 허용) 후 생성된 [웹 앱 URL]을 복사하여 전달
  */
 
 // 구글 드라이브 사진 저장 대상 폴더 ID
 const FOLDER_ID = "1k9WviV6jJbZVSNjVzVEWigE9KMPGO4Gu";
-
-/**
- * ★ [필수 실행] 구글 드라이브 쓰기(파일 생성) 및 스프레드시트 권한 승인 함수
- * 상단에서 'testAuth'를 선택하고 [실행]을 눌러 드라이브 쓰기 권한을 허용해 주세요!
- */
-function testAuth() {
-  SpreadsheetApp.getActiveSpreadsheet();
-  const folder = DriveApp.getFolderById(FOLDER_ID);
-  
-  // 구글 드라이브 파일 쓰기(생성) 권한을 강제로 활성화하고 테스트
-  const testBlob = Utilities.newBlob("Drive write permission test", "text/plain", "권한테스트_임시파일.txt");
-  const testFile = folder.createFile(testBlob);
-  testFile.setTrashed(true); // 테스트 생성 후 즉시 휴지통 이동
-  
-  Logger.log("✅ 대상 폴더 연결 확인: " + folder.getName());
-  Logger.log("✅ 구글 드라이브 쓰기 권한 및 스프레드시트 권한이 완벽하게 승인되었습니다!");
-}
 
 function doGet(e) {
   return ContentService.createTextOutput("🚦 우리 집 AI 검증 탐험대 Web App이 정상 동작 중입니다.")
@@ -48,16 +29,8 @@ function doPost(e) {
     const data = JSON.parse(rawData);
     
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let sheet = ss.getSheetByName("탐험대결과");
-    if (!sheet) {
-      const firstSheet = ss.getSheets()[0];
-      if (firstSheet && firstSheet.getLastRow() === 0) {
-        firstSheet.setName("탐험대결과");
-        sheet = firstSheet;
-      } else {
-        sheet = ss.insertSheet("탐험대결과");
-      }
-    }
+    // Create와 동일하게 현재 활성화된 시트에 바로 기록
+    const sheet = ss.getActiveSheet();
     
     // 시트 헤더가 없으면 첫 행 자동 생성
     if (sheet.getLastRow() === 0) {
@@ -90,7 +63,15 @@ function doPost(e) {
       sheet.setFrozenRows(1);
     }
     
-    // 학생 정보 문자열 정제 ([object Object] 및 단위 중복 방지)
+    // 대상 드라이브 폴더 취득
+    let folder = null;
+    try {
+      folder = DriveApp.getFolderById(FOLDER_ID);
+    } catch (err) {
+      Logger.log("Folder access error: " + err);
+    }
+    
+    // 학생 정보 정제
     const school  = sanitizeValue(data.school || data.profile?.school, "학교");
     const rawGrade = sanitizeValue(data.grade || data.profile?.grade, "0");
     const gradeClean = rawGrade.replace("학년", "").trim() || rawGrade;
@@ -104,22 +85,16 @@ function doPost(e) {
     const name    = sanitizeValue(data.name || data.profile?.name, "학생");
     const relation = sanitizeValue(data.relation || data.profile?.relation, "본인");
     
-    // 시간 문자열 생성 (예: 20260906_194000)
+    // 시간 문자열 생성
     const now = new Date();
     const timeStr = Utilities.formatDate(now, "Asia/Seoul", "yyyyMMdd_HHmmss");
     
     // 사진 파일 저장 처리 (파일명: 학교_학년_반_번호_이름_시간)
     let photoUrl = "";
     const photoData = data.photo || data.image;
-    if (photoData) {
-      try {
-        const folder = DriveApp.getFolderById(FOLDER_ID);
-        const fileName = `${school}_${gradeClean}학년_${classClean}반_${numberClean}번_${name}_${timeStr}.jpg`;
-        photoUrl = saveImageToDrive(folder, photoData, fileName);
-      } catch (driveErr) {
-        photoUrl = "드라이브 저장 오류: " + driveErr.message;
-        Logger.log("드라이브 오류: " + driveErr);
-      }
+    if (photoData && folder) {
+      const fileName = `${school}_${gradeClean}학년_${classClean}반_${numberClean}번_${name}_${timeStr}.jpg`;
+      photoUrl = saveImageToDrive(folder, photoData, fileName);
     }
     
     // 신호등 판정 한국어 표시
@@ -131,7 +106,7 @@ function doPost(e) {
     // 검증 답변 배열
     const answers = Array.isArray(data.checkAnswers) ? data.checkAnswers : [];
     
-    // 스프레드시트 기록 추가
+    // 스프레드시트 기록 추가 (Create 방식과 동일)
     const formattedDate = Utilities.formatDate(now, "Asia/Seoul", "yyyy-MM-dd HH:mm:ss");
     sheet.appendRow([
       formattedDate,
@@ -159,7 +134,6 @@ function doPost(e) {
     })).setMimeType(ContentService.MimeType.JSON);
     
   } catch (error) {
-    Logger.log("doPost Error: " + error);
     return ContentService.createTextOutput(JSON.stringify({
       result: "error",
       error: error.toString()
@@ -179,17 +153,15 @@ function sanitizeValue(val, defaultVal) {
 }
 
 /**
- * Base64 이미지를 구글 드라이브에 파일로 저장하고 링크를 반환하는 함수
+ * Base64 이미지를 구글 드라이브에 파일로 저장하고 링크를 반환하는 함수 (Create와 동일)
  */
 function saveImageToDrive(folder, base64DataUrl, fileName) {
   if (!base64DataUrl || typeof base64DataUrl !== 'string') return "";
   
-  // 이미 일반 웹 URL 형태인 경우 그대로 반환
   if (base64DataUrl.indexOf("http://") === 0 || base64DataUrl.indexOf("https://") === 0) {
     return base64DataUrl;
   }
   
-  // 상대 경로이거나 길이가 짧은 문자열인 경우 원본 반환
   if (base64DataUrl.indexOf("data:") !== 0 && base64DataUrl.length < 100) {
     return base64DataUrl;
   }
@@ -211,11 +183,7 @@ function saveImageToDrive(folder, base64DataUrl, fileName) {
     const decoded = Utilities.base64Decode(base64String);
     const blob = Utilities.newBlob(decoded, mimeType, fileName);
     const file = folder.createFile(blob);
-    try {
-      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    } catch (shareErr) {
-      Logger.log("공유 권한 설정 생략: " + shareErr.message);
-    }
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     return file.getUrl();
   } catch (err) {
     return "저장 실패 (" + err.message + ")";
