@@ -274,25 +274,25 @@
   <p class="lead" id="startLead">집안 곳곳에 숨은 AI를 찾고, 내가 AI를 <b>똑똑하게 검증</b>하며 쓰고 있는지 신호등으로 확인해 봐요!</p>
 
   <label class="field-label" id="labelSchool">학교 이름</label>
-  <input class="input" id="inputSchool" placeholder="예) 서울초등학교">
+  <input class="input" id="inputSchool" placeholder="예) 서울초등학교" oninput="updateStartBtn()">
 
   <div style="display: flex; gap: 10px;">
     <div style="flex: 1;">
       <label class="field-label" id="labelGrade">학년</label>
-      <input class="input" id="inputGrade" inputmode="numeric" placeholder="예) 5">
+      <input class="input" id="inputGrade" inputmode="numeric" placeholder="예) 5" oninput="updateStartBtn()">
     </div>
     <div style="flex: 1;">
       <label class="field-label" id="labelCls">반</label>
-      <input class="input" id="inputCls" inputmode="numeric" placeholder="예) 2">
+      <input class="input" id="inputCls" inputmode="numeric" placeholder="예) 2" oninput="updateStartBtn()">
     </div>
     <div style="flex: 1;">
       <label class="field-label" id="labelNumber">번호</label>
-      <input class="input" id="inputNumber" inputmode="numeric" placeholder="예) 12">
+      <input class="input" id="inputNumber" inputmode="numeric" placeholder="예) 12" oninput="updateStartBtn()">
     </div>
   </div>
 
   <label class="field-label" id="labelName">학생 이름</label>
-  <input class="input" id="inputName" placeholder="예) 홍길동">
+  <input class="input" id="inputName" placeholder="예) 홍길동" oninput="updateStartBtn()">
 
   <label class="field-label" id="labelRelation">지금 참여하는 사람은?</label>
   <div class="chip-row" id="relationChips"></div>
@@ -392,6 +392,9 @@
 <footer class="foot" id="footerText">OECD · EC AI 리터러시(AILit) 기반 가정 연계 미션</footer>
 
 <script>
+/* ── Google 연동 설정 ── */
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzE5weuAxQdVqfFgf2zxkNbHpKmUlpMEnv1zBt534dBU-61ALMVGXrVjQXAp13NTSc9/exec";
+
 /* ── 데이터 ── */
 const RELATIONS_I18N = {
   ko: ["학생 (나)", "엄마", "아빠", "형·누나·언니·오빠", "동생", "할머니·할아버지", "그 외 가족"],
@@ -568,7 +571,6 @@ const STATIC_I18N = {
 };
 
 const LAMP_COLORS = ["#FF6357", "#F5A623", "#5CA9F5", "#2FBE84"];
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxoKtVWfVFlR9gJdT2joB0h7QLpTGMxbvLHgVYDESmn6M3eb4Im28KTzVu3b3CIP9Wo/exec";
 
 /* ── 상태 ── */
 let RELATIONS = RELATIONS_I18N.ko;
@@ -831,13 +833,22 @@ function selectRelation(r) {
   });
 }
 function updateStartBtn() {
-  document.getElementById("btnStart").disabled = !(
-    profile.school.trim() &&
-    profile.grade.trim() &&
-    profile.cls.trim() &&
-    profile.number.trim() &&
-    profile.name.trim()
-  );
+  const school = (document.getElementById("inputSchool")?.value || profile.school || "").trim();
+  const grade  = (document.getElementById("inputGrade")?.value  || profile.grade  || "").trim();
+  const cls    = (document.getElementById("inputCls")?.value    || profile.cls    || "").trim();
+  const number = (document.getElementById("inputNumber")?.value || profile.number || "").trim();
+  const name   = (document.getElementById("inputName")?.value   || profile.name   || "").trim();
+
+  profile.school = school;
+  profile.grade  = grade;
+  profile.cls    = cls;
+  profile.number = number;
+  profile.name   = name;
+
+  const btn = document.getElementById("btnStart");
+  if (btn) {
+    btn.disabled = !(school && grade && cls && number && name);
+  }
 }
 function updateHistoryBtn() {
   const btn = document.getElementById("btnHistory");

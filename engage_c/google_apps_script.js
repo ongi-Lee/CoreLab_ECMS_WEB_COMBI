@@ -18,6 +18,9 @@
 // 구글 드라이브 사진 저장 대상 폴더 ID
 const FOLDER_ID = "1k9WviV6jJbZVSNjVzVEWigE9KMPGO4Gu";
 
+// 저장할 구글 스프레드시트 ID
+const SPREADSHEET_ID = "11yONFzBlBnIGyym2-JWO-xS84SVmtuot1NVtn37qB9k";
+
 function doGet(e) {
   return ContentService.createTextOutput("🚦 우리 집 AI 검증 탐험대 Web App이 정상 동작 중입니다.")
     .setMimeType(ContentService.MimeType.TEXT);
@@ -28,7 +31,7 @@ function doPost(e) {
     const rawData = e.postData.contents;
     const data = JSON.parse(rawData);
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = ss.getSheetByName("탐험대결과");
     if (!sheet) {
       sheet = ss.insertSheet("탐험대결과");
