@@ -4,19 +4,31 @@
  * 구글 스프레드시트 및 구글 드라이브 연동 Google Apps Script
  * =========================================================================
  * 
- * [배포 안내]
- * 1. 구글 스프레드시트 생성 (또는 기존 Engage 결과용 시트) -> 상단 메뉴 [확장 프로그램] -> [Apps Script] 클릭
- * 2. 편집기 기본 코드를 모두 지우고 이 파일 전체 코드를 붙여넣기
- * 3. 오른쪽 상단 [배포] -> [새 배포] 클릭
- * 4. 유형: [웹 앱] 선택
- *    - 설명: AI 검증 탐험대 결과 및 사진 저장
+ * [★ 중요: 최초 1회 권한 승인 및 배포 순서]
+ * 1. 코드 전체를 복사하여 Apps Script 편집기에 붙여넣고 [저장 (Ctrl+S)]을 누릅니다.
+ * 2. 상단 실행 함수 드롭다운에서 'testAuth'를 선택하고 [실행] 버튼을 클릭합니다.
+ * 3. [권한 검토] 팝업이 뜨면 -> 본인 구글 계정 선택 -> [고급] 클릭 -> [CoreLab(안전하지 않음)으로 이동] -> [허용]을 누릅니다.
+ * 4. 아래 실행 로그에 "✅ 구글 드라이브 및 스프레드시트 권한 승인 완료!"가 뜨는지 확인합니다.
+ * 5. 오른쪽 상단 [배포] -> [배포 관리] 클릭
+ *    - 연필(수정) 아이콘 클릭 -> 버전: [새 버전] 선택
  *    - 다음 사용자로 실행: 나(내 계정)
- *    - 액세스 권한: 모든 사용자 (로그인 불필요) ★ 중요!
- * 5. [배포] 버튼 클릭 후 생성된 [웹 앱 URL]을 복사하여 engage_app.html의 GOOGLE_SCRIPT_URL에 입력
+ *    - 액세스 권한: 모든 사용자(Anyone)
+ *    - [배포] 클릭!
  */
 
 // 구글 드라이브 사진 저장 대상 폴더 ID
 const FOLDER_ID = "1k9WviV6jJbZVSNjVzVEWigE9KMPGO4Gu";
+
+/**
+ * ★ [필수 실행] 구글 드라이브 및 스프레드시트 권한 승인용 테스트 함수
+ * 편집기 상단에서 이 함수를 선택하고 [실행]을 눌러 권한을 허용해 주세요.
+ */
+function testAuth() {
+  SpreadsheetApp.getActiveSpreadsheet();
+  const folder = DriveApp.getFolderById(FOLDER_ID);
+  Logger.log("✅ 대상 폴더 연결 확인: " + folder.getName());
+  Logger.log("✅ 구글 드라이브 및 스프레드시트 권한 승인 완료!");
+}
 
 function doGet(e) {
   return ContentService.createTextOutput("🚦 우리 집 AI 검증 탐험대 Web App이 정상 동작 중입니다.")
@@ -65,9 +77,6 @@ function doPost(e) {
       sheet.setFrozenRows(1);
     }
     
-    // 대상 드라이브 폴더 취득
-    const folder = DriveApp.getFolderById(FOLDER_ID);
-    
     // 학생 정보 문자열 정제 ([object Object] 및 단위 중복 방지)
     const school  = sanitizeValue(data.school || data.profile?.school, "학교");
     const rawGrade = sanitizeValue(data.grade || data.profile?.grade, "0");
@@ -86,12 +95,18 @@ function doPost(e) {
     const now = new Date();
     const timeStr = Utilities.formatDate(now, "Asia/Seoul", "yyyyMMdd_HHmmss");
     
-    // 사진 파일 저장 처리 (파일명: 학교, 학년, 반, 번호, 이름, 시간)
+    // 사진 파일 저장 처리 (파일명: 학교_학년_반_번호_이름_시간)
     let photoUrl = "";
     const photoData = data.photo || data.image;
     if (photoData) {
-      const fileName = `AI탐험_${school}_${gradeClean}학년_${classClean}반_${numberClean}번_${name}_${timeStr}.jpg`;
-      photoUrl = saveImageToDrive(folder, photoData, fileName);
+      try {
+        const folder = DriveApp.getFolderById(FOLDER_ID);
+        const fileName = `${school}_${gradeClean}학년_${classClean}반_${numberClean}번_${name}_${timeStr}.jpg`;
+        photoUrl = saveImageToDrive(folder, photoData, fileName);
+      } catch (driveErr) {
+        photoUrl = "드라이브 저장 오류: " + driveErr.message;
+        Logger.log("드라이브 오류: " + driveErr);
+      }
     }
     
     // 신호등 판정 한국어 표시
@@ -131,6 +146,7 @@ function doPost(e) {
     })).setMimeType(ContentService.MimeType.JSON);
     
   } catch (error) {
+    Logger.log("doPost Error: " + error);
     return ContentService.createTextOutput(JSON.stringify({
       result: "error",
       error: error.toString()
@@ -182,7 +198,11 @@ function saveImageToDrive(folder, base64DataUrl, fileName) {
     const decoded = Utilities.base64Decode(base64String);
     const blob = Utilities.newBlob(decoded, mimeType, fileName);
     const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (shareErr) {
+      Logger.log("공유 권한 설정 생략: " + shareErr.message);
+    }
     return file.getUrl();
   } catch (err) {
     return "저장 실패 (" + err.message + ")";
