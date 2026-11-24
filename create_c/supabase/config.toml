@@ -1,0 +1,9 @@
+project_id = "corelab-ecms-create"
+
+# The existing site calls these public functions with an sb_publishable key,
+# not a user JWT. Preserve the deployed gateway configuration on CLI deployment.
+[functions.generate-prompt]
+verify_jwt = false
+
+[functions.generate-image]
+verify_jwt = false

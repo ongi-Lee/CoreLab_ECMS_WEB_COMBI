@@ -10,9 +10,6 @@
 const SUPABASE_URL      = "https://mjsuomcklkiessxfxzfi.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_snAda8Q9A1ox_Z5pVqiycA_zaV9ewIM";
 
-// Fallback 이미지 경로 (GitHub에 업로드된 샘플 이미지)
-const FALLBACK_IMG = "sample_img.png";
-
 /* ────────────────────────────────────────────────────────
    다국어 (I18N) 번역 딕셔너리 정의
    ──────────────────────────────────────────────────────── */
@@ -787,29 +784,12 @@ compareGenerateBtn.addEventListener('click', async () => {
 
     } catch (err) {
         console.error(err);
-        // 실패 시 mock 이미지로 처리
-        compareState.second = {
-            character: secondChar,
-            background: secondBg,
-            action: secondAction,
-            imageUrl: FALLBACK_IMG,
-            promptText: "샘플 주문 정보"
-        };
-
-        const wrapper2 = document.getElementById('compareImg2Wrapper');
-        const img2 = document.getElementById('compareImg2');
-        img2.src = FALLBACK_IMG;
-        img2.removeAttribute('hidden');
-        wrapper2.classList.remove('placeholder');
-
-        renderCompareSelections2();
-
-        openDifferenceNoteZone();
-        
+        showError(`${lang === 'en' ? 'The second picture could not be generated.' : '두 번째 그림을 만들지 못했어요.'}\n${err.message}`);
+        // Keep an existing comparison, but never submit a sample as AI output.
+        if (compareState.second?.imageUrl) {
+            document.getElementById('differenceNoteZone').removeAttribute('hidden');
+        }
         await loadImageCount(currentUser);
-        setTimeout(() => {
-            document.getElementById('differenceNoteZone').scrollIntoView({ behavior: 'smooth' });
-        }, 300);
     } finally {
         imageLoadingBox.setAttribute('hidden', '');
         loadingTextEl.textContent = originalLoadingText;
@@ -857,20 +837,56 @@ bindToggle(actionButtons,     'action',     'active-action');
    ──────────────────────────────────────────────────────── */
 async function callEdgeFunction(functionName, body) {
     const url = `${SUPABASE_URL}/functions/v1/${functionName}`;
-    const res  = await fetch(url, {
-        method:  'POST',
-        headers: {
-            'Content-Type':  'application/json',
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error || `서버 오류 (${res.status})`);
+    // Compatibility with the deployed function that wraps Gemini 503 in HTTP
+    // 500. New functions retry on the server and set retriesExhausted, so the
+    // browser never multiplies those retries or repeats the quota RPC.
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => null);
+        if (res.ok) {
+            const valid = functionName === 'generate-prompt'
+                ? typeof data?.koreanPrompt === 'string' && data.koreanPrompt.trim() &&
+                  typeof data?.englishPrompt === 'string' && data.englishPrompt.trim()
+                : functionName === 'generate-image'
+                    ? typeof data?.imageBytes === 'string' && data.imageBytes.length > 0 &&
+                      typeof data?.mimeType === 'string' && data.mimeType.startsWith('image/')
+                    : data !== null;
+            if (!valid) {
+                throw new Error(getLang() === 'en'
+                    ? 'The AI response was incomplete. Please try again later.'
+                    : 'AI 응답이 완성되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+            }
+            return data;
+        }
+        const detail = typeof data?.error === 'string' ? data.error : data?.error?.message || '';
+        const legacyBusy = res.status === 500 && typeof data?.error === 'string' &&
+            /Gemini API/.test(detail) && /"code"\s*:\s*503\b/.test(detail);
+        const busy = res.status === 503 || data?.upstreamStatus === 503 || legacyBusy;
+        if (busy && !data?.retriesExhausted && attempt < 2) {
+            await new Promise(resolve => setTimeout(resolve, 2000 * 2 ** attempt + Math.random() * 1000));
+            continue;
+        }
+        const en = getLang() === 'en';
+        let message = detail || (en ? `Server error (${res.status})` : `서버 오류 (${res.status})`);
+        if (busy) {
+            message = en
+                ? 'The AI server is busy. Please try again in a little while.'
+                : 'AI 서버에 요청이 몰리고 있습니다. 잠시 후 다시 시도해 주세요.';
+        } else if (res.status === 429 || data?.upstreamStatus === 429) {
+            message = en
+                ? 'The AI request limit was reached. Please wait or ask your teacher.'
+                : 'AI 요청 한도에 도달했습니다. 잠시 기다리거나 선생님께 문의해 주세요.';
+        }
+        throw new Error(message);
     }
-    return res.json();
 }
 
 
@@ -1143,21 +1159,8 @@ generateBtn.addEventListener('click', async () => {
 
     } catch (err) {
         console.error(err);
-        // 실패 시 샘플 이미지 사용 (에러창을 띄우는 대신 완성 메시지 표시)
-        resultImage.src = FALLBACK_IMG;
-        
-        // 실패 시 배지 텍스트를 완성 상태로 변경하여 자연스럽게 대체
-        const badge = outputZone.querySelector('.success-badge');
-        if (badge) {
-            badge.textContent = i18n.labelResultBadge;
-        }
-
-        outputZone.removeAttribute('hidden');
-        outputZone.scrollIntoView({ behavior: 'smooth' });
+        showError(`${lang === 'en' ? 'The picture could not be generated.' : '그림을 만들지 못했어요.'}\n${err.message}`);
         await loadImageCount(currentUser);
-
-        // 실패 시에도 Step 4 샘플 이미지로 처리 추가
-        handleImageCompletion(resultImage.src);
     } finally {
         imageLoadingBox.setAttribute('hidden', '');
         // 버튼 복원은 lockGenerateBtn이 아닌 경우에만

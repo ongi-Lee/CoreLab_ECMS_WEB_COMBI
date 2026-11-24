@@ -1,9 +1,9 @@
 // Supabase Edge Function: generate-image
 // Deno + TypeScript 환경에서 실행됩니다.
 // 완성된 영어 프롬프트를 받아
-// Google Imagen 3 API로 동화 화풍의 이미지를 생성합니다.
+// Gemini 이미지 API로 동화 화풍의 이미지를 생성합니다.
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callGemini, geminiErrorResponse } from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin":  "*",
@@ -11,16 +11,20 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // OPTIONS preflight 처리
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405, headers: corsHeaders });
+  }
+
   try {
     const { prompt } = await req.json();
 
-    if (!prompt) {
+    if (typeof prompt !== "string" || !prompt.trim() || prompt.length > 10_000) {
       return new Response(
         JSON.stringify({ error: "prompt가 필요합니다." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -48,41 +52,29 @@ serve(async (req) => {
       "high quality digital illustration",
     ].join(" ");
 
-    // Gemini 3.1 flash lite image 모델 호출 (API 키는 Supabase Secret에 안전하게 보관)
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-image:generateContent?key=${geminiApiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: safeStoryPrompt }] }],
-          generationConfig: {
-            imageConfig: {
-              aspectRatio: "16:9"
-            }
-          },
-        }),
-      }
-    );
+    // 텍스트 모델과 이미지 모델을 따로 설정합니다.
+    const model = Deno.env.get("GEMINI_IMAGE_MODEL") || "gemini-3.1-flash-lite-image";
+    const geminiData = await callGemini(geminiApiKey, model, {
+      contents: [{ role: "user", parts: [{ text: safeStoryPrompt }] }],
+      generationConfig: {
+        imageConfig: {
+          aspectRatio: "16:9"
+        }
+      },
+    });
 
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      throw new Error(`Gemini API 오류: ${errText}`);
-    }
-
-    const geminiData = await geminiRes.json();
-    
     // Gemini 3.1과 이전 버전의 이미지 응답 포맷(inlineData 및 blob)을 둘 다 지원하도록 파싱
     const parts = geminiData.candidates?.[0]?.content?.parts || [];
     let imageBytes = "";
     let mimeType = "image/png";
 
     for (const part of parts) {
-      if (part.inlineData) {
+      if (part.thought) continue;
+      if (part.inlineData?.data && part.inlineData.mimeType?.startsWith("image/")) {
         imageBytes = part.inlineData.data;
         mimeType = part.inlineData.mimeType || "image/png";
         break;
-      } else if (part.blob) {
+      } else if (part.blob?.content && part.blob.mimeType?.startsWith("image/")) {
         imageBytes = part.blob.content;
         mimeType = part.blob.mimeType || "image/png";
         break;
@@ -90,7 +82,6 @@ serve(async (req) => {
     }
 
     if (!imageBytes) {
-      console.error("Gemini API Full Response:", JSON.stringify(geminiData));
       throw new Error("이미지 데이터가 반환되지 않았습니다. 프롬프트를 확인해주세요.");
     }
 
@@ -103,10 +94,6 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("generate-image error:", err);
-    return new Response(
-      JSON.stringify({ error: err.message || "알 수 없는 오류가 발생했습니다." }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return geminiErrorResponse(err, corsHeaders);
   }
 });
