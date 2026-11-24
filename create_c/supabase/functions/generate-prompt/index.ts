@@ -3,7 +3,7 @@
 // 학생이 선택한 주인공/배경/행동을 받아
 // Gemini 텍스트 API로 안전하고 동화적인 프롬프트를 자동 생성합니다.
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callGemini, geminiErrorResponse } from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin":  "*",
@@ -11,16 +11,21 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // OPTIONS preflight 처리
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405, headers: corsHeaders });
+  }
+
   try {
     const { character, background, action } = await req.json();
 
-    if (!character || !background || !action) {
+    if (![character, background, action].every((value) =>
+      typeof value === "string" && value.trim().length > 0 && value.length <= 300)) {
       return new Response(
         JSON.stringify({ error: "character, background, action이 모두 필요합니다." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -54,36 +59,25 @@ serve(async (req) => {
 
     const userMessage = `주인공: ${character}, 배경: ${background}, 행동: ${action}`;
 
-    // Gemini 2.0 Flash 텍스트 API 호출
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${geminiApiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents: [{ role: "user", parts: [{ text: userMessage }] }],
-          generationConfig: {
-            temperature: 0.9,
-            responseMimeType: "application/json",
-          },
-          safetySettings: [
-            { category: "HARM_CATEGORY_HARASSMENT",        threshold: "BLOCK_LOW_AND_ABOVE" },
-            { category: "HARM_CATEGORY_HATE_SPEECH",       threshold: "BLOCK_LOW_AND_ABOVE" },
-            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_LOW_AND_ABOVE" },
-            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_LOW_AND_ABOVE" },
-          ],
-        }),
-      }
-    );
-
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      throw new Error(`Gemini API 오류: ${errText}`);
-    }
-
-    const geminiData = await geminiRes.json();
-    const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    // 모델은 Supabase Secret으로 변경할 수 있습니다.
+    const model = Deno.env.get("GEMINI_TEXT_MODEL") || "gemini-3.1-flash-lite";
+    const geminiData = await callGemini(geminiApiKey, model, {
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      contents: [{ role: "user", parts: [{ text: userMessage }] }],
+      generationConfig: {
+        temperature: 0.9,
+        responseMimeType: "application/json",
+      },
+      safetySettings: [
+        { category: "HARM_CATEGORY_HARASSMENT",        threshold: "BLOCK_LOW_AND_ABOVE" },
+        { category: "HARM_CATEGORY_HATE_SPEECH",       threshold: "BLOCK_LOW_AND_ABOVE" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_LOW_AND_ABOVE" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_LOW_AND_ABOVE" },
+      ],
+    }, 45_000);
+    const rawText = (geminiData.candidates?.[0]?.content?.parts || [])
+      .filter((part: { thought?: boolean; text?: string }) => !part.thought && part.text)
+      .map((part: { text: string }) => part.text).join("");
 
     if (!rawText) {
       throw new Error("Gemini API에서 프롬프트를 생성하지 못했습니다.");
@@ -91,6 +85,10 @@ serve(async (req) => {
 
     // JSON 파싱
     const parsed = JSON.parse(rawText);
+    if (![parsed.koreanPrompt, parsed.englishPrompt].every((value) =>
+      typeof value === "string" && value.trim())) {
+      throw new Error("프롬프트 응답 형식이 올바르지 않습니다.");
+    }
 
     return new Response(
       JSON.stringify({
@@ -101,10 +99,6 @@ serve(async (req) => {
     );
 
   } catch (err) {
-    console.error("generate-prompt error:", err);
-    return new Response(
-      JSON.stringify({ error: err.message || "알 수 없는 오류가 발생했습니다." }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return geminiErrorResponse(err, corsHeaders);
   }
 });
